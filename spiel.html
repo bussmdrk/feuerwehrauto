@@ -9,7 +9,8 @@
 <meta name="apple-mobile-web-app-title" content="Feuerwehrauto">
 <meta name="theme-color" content="#7ec1ef">
 <title>Feuerwehrauto</title>
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%23e0202a'/%3E%3Crect x='16' y='58' width='88' height='30' rx='6' fill='%23fff'/%3E%3Crect x='22' y='40' width='46' height='14' rx='6' fill='%23fff'/%3E%3Ccircle cx='34' cy='92' r='11' fill='%23222'/%3E%3Ccircle cx='86' cy='92' r='11' fill='%23222'/%3E%3Crect x='74' y='22' width='30' height='13' rx='6' fill='%236fd0ff'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;background:#8ecbf0;
@@ -59,6 +60,17 @@
                   100%{opacity:0;transform:translate(12px,130px)}}
   .waterzone{pointer-events:none}
   #stage.ladder-out .waterzone{pointer-events:all}
+
+  /* ---------- Querformat: flachere Leiter, weiter Ausschnitt ---------- */
+  @media (orientation: landscape){
+    /* Leiter legt sich diagonal über den breiten Himmel */
+    #stage.ladder-out .laddergrp{transform:translate(615px,296px) rotate(200deg)}
+    /* Tropfen fallen auch bei gedrehter Leiter nach unten (lokale Richtung dreht mit) */
+    .spraydrop{animation-name:fallQ}
+    @keyframes fallQ{0%{opacity:0;transform:translate(0,0)}
+                     12%{opacity:.95}
+                     100%{opacity:0;transform:translate(-44px,-122px)}}
+  }
 
   /* ---------- Fahrertür ---------- */
   /* Tür: Scharnier an der Vorderkante (802/379), schwenkt nach vorn-außen und erscheint verkürzt */
@@ -395,7 +407,7 @@
         <rect x="0" y="3" width="412" height="11" rx="5" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
         <rect x="0" y="-6" width="412" height="12" fill="url(#rungs1)"/>
         <rect x="-26" y="-25" width="36" height="50" rx="9" fill="#b9c3cc" stroke="#8d99a4" stroke-width="2"/>
-        <rect data-toggle="ladder" x="0" y="-22" width="416" height="44" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+        <rect data-toggle="ladder" x="0" y="-52" width="416" height="104" fill="#000" fill-opacity="0" style="pointer-events:all"/>
       </g>
 
       <rect data-hint x="-40" y="-34" width="84" height="68" fill="#000" fill-opacity="0" style="pointer-events:none"/>
@@ -405,7 +417,7 @@
         <rect x="0" y="-11" width="462" height="9.5" rx="4" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
         <rect x="0" y="1.5" width="462" height="9.5" rx="4" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
         <rect x="0" y="-4" width="462" height="8" fill="url(#rungs2)"/>
-        <rect data-toggle="ladder" x="0" y="-18" width="466" height="36" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+        <rect data-toggle="ladder" x="0" y="-52" width="466" height="104" fill="#000" fill-opacity="0" style="pointer-events:all"/>
 
         <!-- 3. Segment (Spitzenstück mit Düse, fährt mit aus) -->
         <g class="seg3">
@@ -452,19 +464,19 @@
             </g>
           </g>
 
-          <rect data-toggle="ladder" x="0" y="-16" width="458" height="32" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+          <rect data-toggle="ladder" x="0" y="-52" width="458" height="104" fill="#000" fill-opacity="0" style="pointer-events:all"/>
           <g class="waterzone">
-            <rect data-toggle="water" data-hint x="452" y="-38" width="94" height="76" fill="#000" fill-opacity="0"/>
+            <rect data-toggle="water" data-hint x="452" y="-58" width="150" height="116" fill="#000" fill-opacity="0"/>
           </g>
         </g>
       </g>
     </g>
 
     <!-- Tippflächen -->
-    <rect data-toggle="door" data-hint x="674" y="302" width="130" height="164" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="door" data-hint x="668" y="296" width="156" height="184" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     <rect data-toggle="shutter" data-hint x="88" y="316" width="288" height="112" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     <rect data-toggle="shutter" x="376" y="316" width="288" height="112" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="headlights" data-hint x="872" y="382" width="66" height="82" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="headlights" data-hint x="862" y="372" width="100" height="112" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     <rect data-toggle="siren" data-hint x="668" y="150" width="108" height="146" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     <rect data-toggle="lights" data-hint x="778" y="150" width="138" height="148" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     <rect data-toggle="drive" data-hint x="182" y="398" width="132" height="126" fill="#000" fill-opacity="0" style="pointer-events:all"/>
@@ -493,15 +505,27 @@
   var SVGNS = 'http://www.w3.org/2000/svg';
 
   /* ================= ANSICHT (jeder Bildschirm wird ausgefüllt) ================= */
-  var GROUND = 520, TRUCK_CX = 509, VW = 1120, VH_MIN = 400, GROUND_FRAC = 0.70;
+  var GROUND = 520, TRUCK_CX = 509;
   function fit(){
     var w0 = window.innerWidth, h0 = window.innerHeight;
     if (!w0 || !h0) return;
     var ar = Math.max(0.25, w0 / h0);
-    var w = VW, h = w / ar;
-    if (h < VH_MIN){ h = VH_MIN; w = h * ar; }   // breite Fenster: Höhe begrenzen
-    var vy = Math.min(GROUND - h * GROUND_FRAC, 30);   // Leiterspitze bleibt immer im Bild
-    stage.setAttribute('viewBox', (TRUCK_CX - w/2).toFixed(1) + ' ' + vy.toFixed(1) + ' ' +
+    var w, h, vy, vx;
+    if (h0 >= w0){
+      // Hochformat: schmaler Ausschnitt, Leiter steil nach oben
+      w = 1120; h = w / ar;
+      if (h < 400){ h = 400; w = h * ar; }
+      vy = Math.min(GROUND - h * 0.70, 30);
+      vx = TRUCK_CX - w/2;
+    } else {
+      // Querformat: nach dem Inhalt einrahmen (Fahrzeug + flache Leiter + Wasser)
+      var x0 = -640, x1 = 1340, y0 = -210, y1 = 620;
+      w = Math.max(x1 - x0, (y1 - y0) * ar);
+      h = w / ar;
+      vx = (x0 + x1) / 2 - w/2;
+      vy = (y0 + y1) / 2 - h/2;
+    }
+    stage.setAttribute('viewBox', vx.toFixed(1) + ' ' + vy.toFixed(1) + ' ' +
                                    w.toFixed(1) + ' ' + h.toFixed(1));
   }
   fit();
