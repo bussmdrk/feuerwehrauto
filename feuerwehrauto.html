@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Feuerwehrauto">
+<meta name="theme-color" content="#7ec1ef">
+<title>Feuerwehrauto</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%23e0202a'/%3E%3Crect x='16' y='58' width='88' height='30' rx='6' fill='%23fff'/%3E%3Crect x='22' y='40' width='46' height='14' rx='6' fill='%23fff'/%3E%3Ccircle cx='34' cy='92' r='11' fill='%23222'/%3E%3Ccircle cx='86' cy='92' r='11' fill='%23222'/%3E%3Crect x='74' y='22' width='30' height='13' rx='6' fill='%236fd0ff'/%3E%3C/svg%3E">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;background:#8ecbf0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-user-select:none;user-select:none;touch-action:manipulation;overscroll-behavior:none}
+  #stage{display:block;width:100%;height:100%;touch-action:manipulation}
+
+  /* ---------- Blaulicht ---------- */
+  .beacon-glow{opacity:0}
+  #stage.lights-on .beacon-glass{animation:flash .5s steps(1,end) infinite}
+  #stage.lights-on .beacon-glass.b2{animation-delay:.25s}
+  #stage.lights-on .beacon-glow{animation:flashglow .5s steps(1,end) infinite}
+  #stage.lights-on .beacon-glow.g2{animation-delay:.25s}
+  @keyframes flash{0%,49%{fill:#c8ecff}50%,100%{fill:#123a6b}}
+  @keyframes flashglow{0%,49%{opacity:.9}50%,100%{opacity:0}}
+
+  /* ---------- Sirene ---------- */
+  #stage.siren-on .horn{animation:hornwig .3s ease-in-out infinite alternate}
+  #stage.siren-on .wave{animation:waveout .9s ease-out infinite}
+  #stage.siren-on .wave.w2{animation-delay:.22s}
+  #stage.siren-on .wave.w3{animation-delay:.44s}
+  @keyframes hornwig{from{transform:translate(0,0)}to{transform:translate(0,-4px)}}
+  @keyframes waveout{0%{opacity:.9;stroke-width:5}100%{opacity:0;stroke-width:1}}
+
+  /* ---------- Drehleiter (drei Segmente) ---------- */
+  .laddergrp{transform:translate(615px,296px) rotate(180deg);
+    transition:transform 1.3s cubic-bezier(.35,.05,.2,1)}
+  #stage.ladder-out .laddergrp{transform:translate(615px,296px) rotate(285deg)}
+  .seg2{transform:translate(0px,0px);transition:transform 1.3s cubic-bezier(.35,.05,.2,1)}
+  #stage.ladder-out .seg2{transform:translate(240px,0px)}
+  .seg3{transform:translate(0px,0px);transition:transform 1.3s cubic-bezier(.35,.05,.2,1)}
+  #stage.ladder-out .seg3{transform:translate(240px,0px)}
+
+  /* ---------- Wasser ---------- */
+  .water{opacity:0;transition:opacity .25s}
+  #stage.water-on .water{opacity:1}
+  .jet{stroke-dasharray:20 13;animation:flow .42s linear infinite}         /* Strömung im Strahl */
+  @keyframes flow{from{stroke-dashoffset:0}to{stroke-dashoffset:-33}}
+  .jetline{transform-origin:496px -6px;animation:wobble 1s ease-in-out infinite alternate}
+  @keyframes wobble{from{transform:rotate(-1.4deg)}to{transform:rotate(1.4deg)}}
+  .mist{animation:mist .8s ease-in-out infinite alternate}                 /* Sprühnebel atmet */
+  @keyframes mist{from{opacity:.3;transform:translate(0,0)}
+                  to{opacity:.85;transform:translate(10px,-7px)}}
+  .spraydrop{animation:fall 1.15s linear infinite}                         /* Tropfen fallen ab */
+  @keyframes fall{0%{opacity:0;transform:translate(0,0)}
+                  12%{opacity:.95}
+                  100%{opacity:0;transform:translate(12px,130px)}}
+  .waterzone{pointer-events:none}
+  #stage.ladder-out .waterzone{pointer-events:all}
+
+  /* ---------- Fahrertür ---------- */
+  /* Tür: Scharnier an der Vorderkante (802/379), schwenkt nach vorn-außen und erscheint verkürzt */
+  .door{transform:translate(802px,379px) rotate(0deg) scale(1,1) translate(-802px,-379px);
+        transition:transform .65s cubic-bezier(.4,.05,.25,1)}
+  #stage.door-open .door{transform:translate(802px,379px) rotate(20deg) scale(.33,1.02) translate(78px,0) translate(-802px,-379px)}
+
+  /* ---------- Geräteraum ---------- */
+  .shutter{transform:translate(0px,0px);transition:transform .95s cubic-bezier(.3,.1,.2,1)}
+  #stage.shutter-open .shutter{transform:translate(0px,-108px)}
+
+  /* ---------- Scheinwerfer ---------- */
+  .beam{opacity:0;transition:opacity .35s}
+  .lamp{transition:fill .25s}
+  #stage.headlight-on .beam{opacity:.8}
+  #stage.headlight-on .lamp{fill:#fffbdc}
+
+  /* ---------- Fahren ---------- */
+  /* Rad läuft in der Gruppe, die auf seinen Mittelpunkt verschoben ist -> dreht um sich selbst */
+  #stage.driving .wheel .spin{animation:spin .55s linear infinite}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  #stage.driving .dashes{animation:scrollroad 1.1s linear infinite}
+  @keyframes scrollroad{from{transform:translate(0,0)}to{transform:translate(-400px,0)}}
+  #stage.driving #truck{animation:bob .5s ease-in-out infinite alternate}
+  @keyframes bob{from{transform:translate(0,0)}to{transform:translate(0,-4px)}}
+
+  /* ---------- Hinweise ---------- */
+  #hints{opacity:0;transition:opacity .6s;pointer-events:none}
+  .hint-ring{fill:none;stroke:#ffffff;stroke-width:8;animation:hintpulse 1.2s ease-in-out infinite}
+  .hint-dot{fill:#ffffff;animation:hintpulse 1.2s ease-in-out infinite}
+  @keyframes hintpulse{0%,100%{opacity:.12}50%{opacity:.92}}
+
+  /* ---------- Ton-Knopf ---------- */
+  #mute{position:fixed;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));
+    width:48px;height:48px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.45);
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+    display:flex;align-items:center;justify-content:center;z-index:10;cursor:pointer}
+  #mute:active{transform:scale(.92)}
+  #mute svg{width:27px;height:27px}
+</style>
+</head>
+<body>
+
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="-51 -1197 1120 2424" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="skyG" gradientUnits="userSpaceOnUse" x1="0" y1="-3200" x2="0" y2="520">
+      <stop offset="0" stop-color="#2f86d6"/><stop offset=".55" stop-color="#7ec1ef"/><stop offset="1" stop-color="#dcf2ff"/>
+    </linearGradient>
+    <linearGradient id="roadG" gradientUnits="userSpaceOnUse" x1="0" y1="520" x2="0" y2="1600">
+      <stop offset="0" stop-color="#79828c"/><stop offset=".22" stop-color="#5b646d"/><stop offset="1" stop-color="#2f363d"/>
+    </linearGradient>
+    <linearGradient id="glassG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eaf8ff"/><stop offset="1" stop-color="#8dc6e6"/>
+    </linearGradient>
+    <linearGradient id="redG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f23a42"/><stop offset="1" stop-color="#b6121c"/>
+    </linearGradient>
+    <linearGradient id="redL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff5a60"/><stop offset="1" stop-color="#c9161f"/>
+    </linearGradient>
+    <linearGradient id="chromeG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#dfe6ec"/><stop offset="1" stop-color="#a4afb8"/>
+    </linearGradient>
+    <linearGradient id="ladderG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#e4ebf1"/><stop offset="1" stop-color="#94a0aa"/>
+    </linearGradient>
+    <linearGradient id="beamG" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff6c8" stop-opacity=".95"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="shadowG"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowBlue"><stop offset="0" stop-color="#b6e3ff" stop-opacity=".95"/><stop offset="1" stop-color="#2a7fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="sunG"><stop offset="0" stop-color="#fff8d0"/><stop offset=".55" stop-color="#ffeaa0" stop-opacity=".95"/><stop offset="1" stop-color="#ffe089" stop-opacity="0"/></radialGradient>
+    <pattern id="slats" width="12" height="14" patternUnits="userSpaceOnUse">
+      <rect width="12" height="9" fill="#ccd5dd"/><rect y="9" width="12" height="5" fill="#8d97a1"/>
+    </pattern>
+    <pattern id="rungs1" width="30" height="14" patternUnits="userSpaceOnUse">
+      <rect x="12" width="7" height="14" fill="#d3dbe2"/>
+    </pattern>
+    <pattern id="rungs2" width="26" height="10" patternUnits="userSpaceOnUse">
+      <rect x="10" width="6" height="10" fill="#d3dbe2"/>
+    </pattern>
+    <pattern id="rungs3" width="22" height="8" patternUnits="userSpaceOnUse">
+      <rect x="8" width="5" height="8" fill="#d3dbe2"/>
+    </pattern>
+    <clipPath id="shutterClip">
+      <rect x="96" y="326" width="260" height="94" rx="4"/>
+      <rect x="384" y="326" width="260" height="94" rx="4"/>
+    </clipPath>
+  </defs>
+
+  <!-- ================= HINTERGRUND ================= -->
+  <g id="scenery">
+    <rect x="-9000" y="-4200" width="22000" height="4800" fill="url(#skyG)"/>
+    <circle cx="180" cy="-700" r="180" fill="url(#sunG)"/>
+    <circle cx="180" cy="-700" r="64" fill="#fff8d8"/>
+    <g fill="#ffffff" opacity=".9">
+      <g transform="translate(140,-880) scale(1.1)">
+        <circle cx="-40" cy="0" r="34"/><circle cx="0" cy="-16" r="46"/><circle cx="46" cy="2" r="32"/>
+        <rect x="-62" y="0" width="130" height="30" rx="15"/>
+      </g>
+      <g transform="translate(-380,-560) scale(.95)">
+        <circle cx="-40" cy="0" r="34"/><circle cx="0" cy="-16" r="46"/><circle cx="46" cy="2" r="32"/>
+        <rect x="-62" y="0" width="130" height="30" rx="15"/>
+      </g>
+      <g transform="translate(820,-260) scale(.8)">
+        <circle cx="-40" cy="0" r="34"/><circle cx="0" cy="-16" r="46"/><circle cx="46" cy="2" r="32"/>
+        <rect x="-62" y="0" width="130" height="30" rx="15"/>
+      </g>
+      <g transform="translate(1260,-620) scale(1)">
+        <circle cx="-40" cy="0" r="34"/><circle cx="0" cy="-16" r="46"/><circle cx="46" cy="2" r="32"/>
+        <rect x="-62" y="0" width="130" height="30" rx="15"/>
+      </g>
+      <g transform="translate(-840,-1020) scale(.85)">
+        <circle cx="-40" cy="0" r="34"/><circle cx="0" cy="-16" r="46"/><circle cx="46" cy="2" r="32"/>
+        <rect x="-62" y="0" width="130" height="30" rx="15"/>
+      </g>
+      <g transform="translate(600,-1150) scale(.9)">
+        <circle cx="-40" cy="0" r="34"/><circle cx="0" cy="-16" r="46"/><circle cx="46" cy="2" r="32"/>
+        <rect x="-62" y="0" width="130" height="30" rx="15"/>
+      </g>
+    </g>
+    <path d="M-4000 520 L-4000 486 Q-3000 412 -2000 470 Q-1000 528 0 466 Q1000 404 2000 466 Q3000 528 4000 470 L4000 520 Z" fill="#8ed9b0"/>
+    <path d="M-4000 520 L-4000 500 Q-3000 452 -2000 498 Q-1000 542 0 498 Q1000 454 2000 500 Q3000 544 4000 500 L4000 520 Z" fill="#63c795"/>
+    <rect x="-9000" y="520" width="22000" height="3600" fill="url(#roadG)"/>
+    <rect x="-9000" y="518" width="22000" height="10" fill="#aab5bf" opacity=".45"/>
+    <rect x="-9000" y="562" width="22000" height="14" fill="#ffffff" opacity=".1"/>
+    <g class="dashes" fill="#f6eeae" opacity=".9">
+      <rect x="-2400" y="628" width="132" height="18" rx="9"/><rect x="-2000" y="628" width="132" height="18" rx="9"/>
+      <rect x="-1600" y="628" width="132" height="18" rx="9"/><rect x="-1200" y="628" width="132" height="18" rx="9"/>
+      <rect x="-800" y="628" width="132" height="18" rx="9"/><rect x="-400" y="628" width="132" height="18" rx="9"/>
+      <rect x="0" y="628" width="132" height="18" rx="9"/><rect x="400" y="628" width="132" height="18" rx="9"/>
+      <rect x="800" y="628" width="132" height="18" rx="9"/><rect x="1200" y="628" width="132" height="18" rx="9"/>
+      <rect x="1600" y="628" width="132" height="18" rx="9"/><rect x="2000" y="628" width="132" height="18" rx="9"/>
+      <rect x="2400" y="628" width="132" height="18" rx="9"/><rect x="2800" y="628" width="132" height="18" rx="9"/>
+      <rect x="3200" y="628" width="132" height="18" rx="9"/><rect x="3600" y="628" width="132" height="18" rx="9"/>
+    </g>
+  </g>
+
+  <!-- ================= FEUERWEHRAUTO ================= -->
+  <g id="truck">
+    <ellipse cx="500" cy="528" rx="490" ry="22" fill="url(#shadowG)"/>
+
+    <!-- Räder: äußere Gruppe = Position, innere Gruppe = Drehung um die eigene Mitte -->
+    <g class="wheel wheel-r1" transform="translate(250 464)">
+      <g class="spin">
+        <circle r="58" fill="#22262a"/><circle r="51" fill="#333a40"/>
+        <circle r="32" fill="url(#chromeG)"/>
+        <circle cx="24" cy="0" r="8" fill="#9fb0bd"/>
+        <circle cx="19" cy="0" r="7" fill="#2b3238"/><circle cx="-19" cy="0" r="7" fill="#2b3238"/>
+        <circle cx="0" cy="19" r="7" fill="#2b3238"/><circle cx="0" cy="-19" r="7" fill="#2b3238"/>
+        <circle cx="13.5" cy="13.5" r="7" fill="#2b3238"/><circle cx="-13.5" cy="-13.5" r="7" fill="#2b3238"/>
+        <circle cx="13.5" cy="-13.5" r="7" fill="#2b3238"/><circle cx="-13.5" cy="13.5" r="7" fill="#2b3238"/>
+        <circle r="8" fill="#eef3f7"/>
+      </g>
+    </g>
+    <g class="wheel wheel-r2" transform="translate(360 464)">
+      <g class="spin">
+        <circle r="58" fill="#22262a"/><circle r="51" fill="#333a40"/>
+        <circle r="32" fill="url(#chromeG)"/>
+        <circle cx="24" cy="0" r="8" fill="#9fb0bd"/>
+        <circle cx="19" cy="0" r="7" fill="#2b3238"/><circle cx="-19" cy="0" r="7" fill="#2b3238"/>
+        <circle cx="0" cy="19" r="7" fill="#2b3238"/><circle cx="0" cy="-19" r="7" fill="#2b3238"/>
+        <circle cx="13.5" cy="13.5" r="7" fill="#2b3238"/><circle cx="-13.5" cy="-13.5" r="7" fill="#2b3238"/>
+        <circle cx="13.5" cy="-13.5" r="7" fill="#2b3238"/><circle cx="-13.5" cy="13.5" r="7" fill="#2b3238"/>
+        <circle r="8" fill="#eef3f7"/>
+      </g>
+    </g>
+    <g class="wheel wheel-f" transform="translate(806 464)">
+      <g class="spin">
+        <circle r="58" fill="#22262a"/><circle r="51" fill="#333a40"/>
+        <circle r="32" fill="url(#chromeG)"/>
+        <circle cx="24" cy="0" r="8" fill="#9fb0bd"/>
+        <circle cx="19" cy="0" r="7" fill="#2b3238"/><circle cx="-19" cy="0" r="7" fill="#2b3238"/>
+        <circle cx="0" cy="19" r="7" fill="#2b3238"/><circle cx="0" cy="-19" r="7" fill="#2b3238"/>
+        <circle cx="13.5" cy="13.5" r="7" fill="#2b3238"/><circle cx="-13.5" cy="-13.5" r="7" fill="#2b3238"/>
+        <circle cx="13.5" cy="-13.5" r="7" fill="#2b3238"/><circle cx="-13.5" cy="13.5" r="7" fill="#2b3238"/>
+        <circle r="8" fill="#eef3f7"/>
+      </g>
+    </g>
+
+    <!-- Fahrgestell -->
+    <rect x="66" y="448" width="890" height="34" rx="10" fill="#252b30"/>
+    <rect x="898" y="428" width="54" height="54" rx="10" fill="#39424a"/>
+    <rect x="906" y="472" width="46" height="12" rx="6" fill="#98a3ad"/>
+
+    <!-- Aufbau hinten: roter Kasten -->
+    <rect x="80" y="310" width="580" height="146" rx="10" fill="url(#redG)"/>
+    <rect x="74" y="292" width="596" height="26" rx="9" fill="url(#chromeG)"/>
+    <rect x="74" y="314" width="596" height="6" rx="3" fill="#98a3ad" opacity=".65"/>
+
+    <!-- Geräteraum innen (hinter den Rolltoren) -->
+    <rect x="96" y="326" width="260" height="94" fill="#3a2727"/>
+    <rect x="384" y="326" width="260" height="94" fill="#3a2727"/>
+    <rect x="96" y="326" width="260" height="10" fill="#1f1414" opacity=".75"/>
+    <rect x="384" y="326" width="260" height="10" fill="#1f1414" opacity=".75"/>
+    <rect x="96" y="412" width="260" height="8" fill="#5c4242"/>
+    <rect x="384" y="412" width="260" height="8" fill="#5c4242"/>
+    <g transform="translate(150,378)">
+      <circle r="30" fill="#2f6b3f"/><circle r="19" fill="#3a2727"/><circle r="12" fill="#3f8a52"/>
+      <rect x="-1" y="-30" width="3" height="9" fill="#1f1414"/>
+      <rect x="-24" y="-6" width="48" height="7" rx="3" fill="#f2c53d" opacity=".85"/>
+    </g>
+    <g transform="translate(228,384)">
+      <circle r="24" fill="#e04141"/><rect x="-31" y="12" width="62" height="9" rx="4" fill="#b32d2d"/>
+      <path d="M-12 0 a12 12 0 0 1 24 0 z" fill="#ff9a9a"/>
+      <rect x="-24" y="-6" width="48" height="7" rx="3" fill="#f2c53d" opacity=".85"/>
+    </g>
+    <g transform="translate(292,384)">
+      <circle r="21" fill="#ffcf2e"/><rect x="-27" y="11" width="54" height="8" rx="4" fill="#d9a800"/>
+      <rect x="-27" y="-5" width="54" height="6" rx="3" fill="#c11219"/>
+    </g>
+    <g transform="translate(430,362)">
+      <rect x="0" y="0" width="160" height="8" rx="3" fill="url(#ladderG)"/>
+      <rect x="0" y="24" width="160" height="8" rx="3" fill="url(#ladderG)"/>
+      <rect x="12" y="-2" width="5" height="36" fill="#b9c3cc"/><rect x="52" y="-2" width="5" height="36" fill="#b9c3cc"/>
+      <rect x="92" y="-2" width="5" height="36" fill="#b9c3cc"/><rect x="132" y="-2" width="5" height="36" fill="#b9c3cc"/>
+      <rect x="156" y="-4" width="14" height="40" rx="5" fill="#c11219"/>
+    </g>
+    <g transform="translate(596,354)">
+      <rect x="0" y="0" width="26" height="60" rx="8" fill="#cf2b2b"/>
+      <rect x="0" y="0" width="26" height="12" rx="5" fill="#2b3238"/>
+      <rect x="3" y="32" width="20" height="14" rx="3" fill="#fff" opacity=".85"/>
+    </g>
+    <g transform="translate(140,404)">
+      <rect x="-34" y="0" width="68" height="12" rx="4" fill="#e9eef3" opacity=".8"/>
+    </g>
+
+    <!-- Rolltore -->
+    <g clip-path="url(#shutterClip)">
+      <rect class="shutter" x="94" y="322" width="264" height="102" fill="url(#slats)"/>
+      <rect class="shutter" x="382" y="322" width="264" height="102" fill="url(#slats)"/>
+      <rect class="shutter" x="94" y="318" width="264" height="10" rx="4" fill="#e8eef3"/>
+      <rect class="shutter" x="382" y="318" width="264" height="10" rx="4" fill="#e8eef3"/>
+    </g>
+    <rect x="92" y="318" width="268" height="11" rx="5" fill="#9aa4ad"/>
+    <rect x="380" y="318" width="268" height="11" rx="5" fill="#9aa4ad"/>
+    <rect x="92" y="414" width="268" height="12" rx="5" fill="#9aa4ad"/>
+    <rect x="380" y="414" width="268" height="12" rx="5" fill="#9aa4ad"/>
+    <rect x="358" y="322" width="24" height="104" fill="url(#redG)"/>
+    <rect x="358" y="322" width="5" height="104" fill="#8d0f16" opacity=".5"/>
+    <rect x="377" y="322" width="5" height="104" fill="#8d0f16" opacity=".5"/>
+
+    <!-- Zierleisten / Schriftzug -->
+    <rect x="84" y="428" width="572" height="20" fill="#ffcf2e"/>
+    <rect x="84" y="428" width="572" height="3" fill="#fff" opacity=".6"/>
+    <rect x="84" y="445" width="572" height="3" fill="#fff" opacity=".6"/>
+    <text x="120" y="445" font-size="15" font-weight="700" fill="#7a4a00" font-family="inherit" letter-spacing="2">FEUERWEHR</text>
+    <g transform="translate(560,428)">
+      <rect x="0" y="0" width="96" height="20" fill="#e0202a"/>
+      <path d="M14 4 l6 12 12 -8 -6 12 -12 -8 z" fill="#fff" opacity=".9"/>
+      <rect x="52" y="6" width="34" height="8" rx="4" fill="#fff" opacity=".8"/>
+    </g>
+
+    <!-- Fahrerhaus -->
+    <path d="M660 456 L660 332 Q660 310 682 306 L876 306 L918 336 L922 456 Z" fill="url(#redG)" stroke="#8d0f16" stroke-width="3"/>
+    <rect x="820" y="316" width="64" height="54" rx="8" fill="url(#glassG)" stroke="#7c8894" stroke-width="3"/>
+    <path d="M888 312 L914 338 L914 374 L888 374 Z" fill="url(#glassG)" stroke="#7c8894" stroke-width="3"/>
+    <rect x="676" y="452" width="140" height="14" rx="5" fill="#2b3238"/>
+    <path d="M872 320 l22 0 4 20 -26 0 z" fill="#fff" opacity=".4"/>
+    <g fill="#2b3238">
+      <rect x="920" y="342" width="6" height="26" rx="3"/>
+      <rect x="922" y="338" width="16" height="34" rx="6" fill="#39424a"/>
+    </g>
+
+    <!-- Türöffnung + Kabineninneres mit Fahrer -->
+    <rect x="690" y="306" width="112" height="146" rx="6" fill="#4a1016"/>
+    <rect x="690" y="306" width="112" height="146" rx="6" fill="none" stroke="#5e151a" stroke-width="3"/>
+    <!-- Fahrer (nur bei offener Tür zu sehen) -->
+    <g>
+      <rect x="692" y="394" width="78" height="58" rx="12" fill="#22406b"/>
+      <rect x="692" y="416" width="78" height="9" fill="#f2c53d"/>
+      <rect x="692" y="432" width="78" height="7" fill="#e8eef3" opacity=".85"/>
+      <circle cx="736" cy="370" r="20" fill="#f0c39a"/>
+      <circle cx="730" cy="368" r="3.2" fill="#2b3238"/><circle cx="743" cy="368" r="3.2" fill="#2b3238"/>
+      <path d="M728 380 q8 6 16 0" stroke="#c98d6b" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M712 364 a25 25 0 0 1 48 0 z" fill="#f2c53d"/>
+      <rect x="708" y="360" width="58" height="9" rx="4" fill="#e0a92c"/>
+      <rect x="760" y="402" width="30" height="16" rx="8" fill="#22406b"/>
+      <circle cx="790" cy="410" r="9" fill="#f0c39a"/>
+    </g>
+    <!-- Lenkrad -->
+    <g>
+      <circle cx="782" cy="392" r="19" fill="none" stroke="#1b1f23" stroke-width="8"/>
+      <rect x="777" y="392" width="8" height="22" fill="#1b1f23"/>
+    </g>
+
+    <!-- Fahrertür -->
+    <g class="door">
+      <rect x="690" y="306" width="112" height="146" rx="6" fill="url(#redL)" stroke="#8d0f16" stroke-width="3"/>
+      <rect x="700" y="316" width="92" height="54" rx="7" fill="url(#glassG)" stroke="#7c8894" stroke-width="3"/>
+      <rect x="704" y="322" width="34" height="16" rx="6" fill="#fff" opacity=".55"/>
+      <rect x="694" y="384" width="104" height="4" rx="2" fill="#fff" opacity=".35"/>
+      <rect x="778" y="374" width="18" height="7" rx="3" fill="#cfd6dc"/>
+    </g>
+
+    <!-- Dach -->
+    <rect x="672" y="288" width="258" height="16" rx="7" fill="url(#chromeG)"/>
+    <rect x="684" y="282" width="234" height="8" rx="4" fill="#b9c3cc"/>
+
+    <!-- Martinshorn -->
+    <g class="horn">
+      <rect x="702" y="262" width="44" height="26" rx="9" fill="url(#chromeG)" stroke="#8d99a4" stroke-width="3"/>
+      <rect x="744" y="268" width="16" height="14" rx="6" fill="#b9c3cc"/>
+      <path d="M700 266 l-14 -6 v32 l14 -6 z" fill="#eef4f8" stroke="#8d99a4" stroke-width="3"/>
+    </g>
+    <g fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity=".9">
+      <path class="wave" d="M666 256 q-16 14 0 30"/>
+      <path class="wave w2" d="M654 246 q-22 20 0 50"/>
+      <path class="wave w3" d="M640 236 q-28 28 0 70"/>
+    </g>
+
+    <!-- Blaulichter -->
+    <rect x="790" y="268" width="48" height="24" rx="7" fill="#2b3238"/>
+    <rect class="beacon-glass b1" x="790" y="250" width="48" height="24" rx="10" fill="#123a6b" stroke="#8d99a4" stroke-width="3"/>
+    <circle class="beacon-glow" cx="814" cy="260" r="105" fill="url(#glowBlue)"/>
+    <rect x="854" y="268" width="48" height="24" rx="7" fill="#2b3238"/>
+    <rect class="beacon-glass b2" x="854" y="250" width="48" height="24" rx="10" fill="#123a6b" stroke="#8d99a4" stroke-width="3"/>
+    <circle class="beacon-glow g2" cx="878" cy="260" r="105" fill="url(#glowBlue)"/>
+
+    <!-- Scheinwerfer -->
+    <polygon class="beam" points="928,396 1310,318 1310,502 928,432" fill="url(#beamG)"/>
+    <rect class="lamp" x="886" y="390" width="42" height="38" rx="11" fill="#fff8d2" stroke="#b9c3cc" stroke-width="3"/>
+    <rect x="886" y="440" width="36" height="16" rx="6" fill="#cf2b2b"/>
+
+    <!-- Leiterlager auf dem Dach -->
+    <rect x="566" y="280" width="94" height="22" rx="8" fill="#3a424a"/>
+    <rect x="578" y="272" width="70" height="14" rx="7" fill="url(#chromeG)"/>
+
+    <!-- ============ DREHLEITER: Drehpunkt = Ursprung der Gruppe ============ -->
+    <g class="laddergrp">
+      <!-- 1. Segment (Grundleiter, fest) -->
+      <g class="seg1">
+        <rect x="0" y="-14" width="412" height="11" rx="5" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+        <rect x="0" y="3" width="412" height="11" rx="5" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+        <rect x="0" y="-6" width="412" height="12" fill="url(#rungs1)"/>
+        <rect x="-26" y="-25" width="36" height="50" rx="9" fill="#b9c3cc" stroke="#8d99a4" stroke-width="2"/>
+        <rect data-toggle="ladder" x="0" y="-22" width="416" height="44" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+      </g>
+
+      <rect data-hint x="-40" y="-34" width="84" height="68" fill="#000" fill-opacity="0" style="pointer-events:none"/>
+
+      <!-- 2. Segment (fährt aus) -->
+      <g class="seg2">
+        <rect x="0" y="-11" width="462" height="9.5" rx="4" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+        <rect x="0" y="1.5" width="462" height="9.5" rx="4" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+        <rect x="0" y="-4" width="462" height="8" fill="url(#rungs2)"/>
+        <rect data-toggle="ladder" x="0" y="-18" width="466" height="36" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+
+        <!-- 3. Segment (Spitzenstück mit Düse, fährt mit aus) -->
+        <g class="seg3">
+          <rect x="0" y="-9" width="470" height="7.5" rx="3" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+          <rect x="0" y="1.5" width="470" height="7.5" rx="3" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+          <rect x="0" y="-3" width="470" height="6" fill="url(#rungs3)"/>
+          <rect x="462" y="-15" width="32" height="30" rx="10" fill="url(#chromeG)" stroke="#8d99a4" stroke-width="3"/>
+          <rect x="456" y="-4" width="12" height="8" rx="4" fill="#c11219"/>
+
+          <!-- Wasserstrahl: fließend, mit Sprühnebel und Gischt -->
+          <g class="water">
+            <!-- Strahl: vier Lagen, die Strömung wandert entlang des Bogens -->
+            <g class="jetline">
+              <path d="M494 -6 Q586 -54 692 -32" fill="none" stroke="#7cc7ef" stroke-width="34" stroke-linecap="round" opacity=".35"/>
+              <path d="M494 -6 Q586 -54 692 -32" fill="none" stroke="#a9dcf7" stroke-width="23" stroke-linecap="round" opacity=".6"/>
+              <path class="jet" d="M494 -6 Q586 -54 692 -32" fill="none" stroke="#e4f6ff" stroke-width="13" stroke-linecap="round"/>
+              <path class="jet" d="M494 -6 Q586 -54 692 -32" fill="none" stroke="#ffffff" stroke-width="5"
+                    stroke-linecap="round" style="animation-duration:.3s"/>
+            </g>
+            <!-- Sprühnebel an der Düse -->
+            <g class="mist" fill="#eefaff">
+              <circle cx="500" cy="-8" r="26" opacity=".55"/>
+              <circle cx="524" cy="-24" r="19" opacity=".5"/>
+              <circle cx="512" cy="10" r="16" opacity=".45"/>
+              <circle cx="546" cy="-38" r="12" opacity=".4"/>
+              <circle cx="498" cy="-24" r="11" opacity=".35"/>
+              <circle cx="530" cy="-4" r="9" opacity=".3"/>
+            </g>
+            <!-- Gischtbogen über dem Strahl -->
+            <path class="mist" d="M596 -62 q34 -22 70 -10" fill="none" stroke="#ffffff" stroke-width="9"
+                  stroke-linecap="round" opacity=".45"/>
+            <path class="mist" d="M560 -48 q26 -14 52 -10" fill="none" stroke="#ffffff" stroke-width="6"
+                  stroke-linecap="round" opacity=".35" style="animation-delay:.35s"/>
+            <!-- Regentropfen, die vom Strahlende herabfallen -->
+            <g fill="#f2feff">
+              <circle class="spraydrop" cx="648" cy="-30" r="9"/>
+              <circle class="spraydrop" cx="664" cy="-38" r="7" style="animation-delay:.14s"/>
+              <circle class="spraydrop" cx="678" cy="-28" r="8" style="animation-delay:.28s"/>
+              <circle class="spraydrop" cx="638" cy="-20" r="6" style="animation-delay:.42s"/>
+              <circle class="spraydrop" cx="690" cy="-36" r="6" style="animation-delay:.56s"/>
+              <circle class="spraydrop" cx="656" cy="-14" r="8" style="animation-delay:.7s"/>
+              <circle class="spraydrop" cx="672" cy="-18" r="6.5" style="animation-delay:.84s"/>
+              <circle class="spraydrop" cx="684" cy="-12" r="5.5" style="animation-delay:.98s"/>
+            </g>
+          </g>
+
+          <rect data-toggle="ladder" x="0" y="-16" width="458" height="32" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+          <g class="waterzone">
+            <rect data-toggle="water" data-hint x="452" y="-38" width="94" height="76" fill="#000" fill-opacity="0"/>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- Tippflächen -->
+    <rect data-toggle="door" data-hint x="674" y="302" width="130" height="164" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="shutter" data-hint x="88" y="316" width="288" height="112" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="shutter" x="376" y="316" width="288" height="112" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="headlights" data-hint x="872" y="382" width="66" height="82" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="siren" data-hint x="668" y="150" width="108" height="146" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="lights" data-hint x="778" y="150" width="138" height="148" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="drive" data-hint x="182" y="398" width="132" height="126" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="drive" x="296" y="398" width="132" height="126" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="drive" x="742" y="398" width="132" height="126" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+  </g>
+
+  <g id="hints"></g>
+</svg>
+
+<button id="mute" aria-label="Ton aus">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#123a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 9h3l5-4v14l-5-4H4z"/>
+    <path class="snd1" d="M16 9a4 4 0 0 1 0 6"/>
+    <path class="snd2" d="M19 6.5a8 8 0 0 1 0 11"/>
+    <path class="slash" d="M16 4 20 20" stroke="#c11219" style="display:none"/>
+  </svg>
+</button>
+
+<script>
+(function(){
+  'use strict';
+  var stage = document.getElementById('stage');
+  var hints = document.getElementById('hints');
+  var muteBtn = document.getElementById('mute');
+  var SVGNS = 'http://www.w3.org/2000/svg';
+
+  /* ================= ANSICHT (jeder Bildschirm wird ausgefüllt) ================= */
+  var GROUND = 520, TRUCK_CX = 509, VW = 1120, VH_MIN = 400, GROUND_FRAC = 0.70;
+  function fit(){
+    var w0 = window.innerWidth, h0 = window.innerHeight;
+    if (!w0 || !h0) return;
+    var ar = Math.max(0.25, w0 / h0);
+    var w = VW, h = w / ar;
+    if (h < VH_MIN){ h = VH_MIN; w = h * ar; }   // breite Fenster: Höhe begrenzen
+    var vy = Math.min(GROUND - h * GROUND_FRAC, 30);   // Leiterspitze bleibt immer im Bild
+    stage.setAttribute('viewBox', (TRUCK_CX - w/2).toFixed(1) + ' ' + vy.toFixed(1) + ' ' +
+                                   w.toFixed(1) + ' ' + h.toFixed(1));
+  }
+  fit();
+  window.addEventListener('resize', function(){ fit(); if (hints.childNodes.length) renderHints(); });
+  window.addEventListener('orientationchange', function(){ setTimeout(fit, 250); });
+
+  /* ================= TON ================= */
+  var AC = null, master = null, muted = false;
+  var loops = { water: null, drive: null };
+  var siren = { on:false, osc:null, g:null, timer:null, hi:false };
+
+  function unlockAudio(){
+    if (!AC){
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return;
+      AC = new C();
+      master = AC.createGain();
+      master.gain.value = muted ? 0 : 0.6;
+      master.connect(AC.destination);
+    }
+    if (AC.state === 'suspended' && AC.resume) AC.resume();
+  }
+  function nbuf(sec){
+    var n = Math.max(1, Math.floor(AC.sampleRate * sec));
+    var b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+    for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    return b;
+  }
+  function beep(f, dur, vol){
+    if (!AC) return;
+    var t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.03);
+  }
+  function sweep(o){
+    if (!AC) return;
+    var t = AC.currentTime, s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+    s.buffer = nbuf(o.dur);
+    f.type = o.type || 'bandpass'; f.Q.value = o.q || 1;
+    f.frequency.setValueAtTime(o.f0, t);
+    f.frequency.exponentialRampToValueAtTime(Math.max(60, o.f1), t + o.dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(o.vol, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+    s.connect(f); f.connect(g); g.connect(master);
+    s.start(t); s.stop(t + o.dur + 0.05);
+  }
+  function sfxWhirr(){
+    if (!AC) return;
+    var t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain(), f = AC.createBiquadFilter();
+    o.type = 'sawtooth'; f.type = 'lowpass'; f.frequency.value = 900; f.Q.value = 4;
+    o.frequency.setValueAtTime(72, t); o.frequency.linearRampToValueAtTime(138, t + 1.3);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.085, t + 0.2);
+    g.gain.setValueAtTime(0.085, t + 1.1);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.45);
+    o.connect(f); f.connect(g); g.connect(master); o.start(t); o.stop(t + 1.5);
+    sweep({ f0: 1600, f1: 420, dur: 1.25, vol: 0.045, q: 0.9 });
+    setTimeout(function(){ sweep({ f0: 900, f1: 150, dur: 0.1, vol: 0.13, q: 1 }); }, 1240);
+  }
+  function sfxDoor(open){
+    sweep({ f0: open ? 320 : 700, f1: open ? 900 : 260, dur: 0.45, vol: 0.06, q: 2 });
+    setTimeout(function(){ sweep({ f0: 640, f1: 140, dur: 0.1, vol: 0.13, q: 1 }); }, open ? 380 : 300);
+  }
+  function sfxRoll(){
+    for (var i = 0; i < 8; i++){
+      (function(i){
+        setTimeout(function(){ sweep({ f0: 800 + i * 60, f1: 380, dur: 0.07, vol: 0.055, q: 1.4 }); }, i * 76);
+      })(i);
+    }
+    setTimeout(function(){ sweep({ f0: 560, f1: 130, dur: 0.12, vol: 0.13, q: 1 }); }, 660);
+  }
+  function sirenStart(){
+    if (!AC || siren.on) return;
+    siren.on = true; siren.hi = false;
+    var t = AC.currentTime;
+    var o = AC.createOscillator(), g = AC.createGain(), f = AC.createBiquadFilter();
+    o.type = 'sawtooth'; o.frequency.value = 440;
+    f.type = 'lowpass'; f.frequency.value = 1700; f.Q.value = 1;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.11, t + 0.25);
+    o.connect(f); f.connect(g); g.connect(master); o.start(t);
+    siren.osc = o; siren.g = g;
+    siren.timer = setInterval(function(){
+      if (!AC || !siren.osc) return;
+      siren.hi = !siren.hi;
+      var tt = AC.currentTime, cur = siren.osc.frequency.value;
+      siren.osc.frequency.cancelScheduledValues(tt);
+      siren.osc.frequency.setValueAtTime(cur, tt);
+      siren.osc.frequency.linearRampToValueAtTime(siren.hi ? 587 : 440, tt + 0.22);
+    }, 640);
+  }
+  function sirenStop(){
+    if (!siren.on) return;
+    siren.on = false;
+    clearInterval(siren.timer); siren.timer = null;
+    var o = siren.osc, g = siren.g;
+    siren.osc = null; siren.g = null;
+    if (!AC || !o) return;
+    var t = AC.currentTime;
+    g.gain.cancelScheduledValues(t);
+    g.gain.setValueAtTime(g.gain.value, t);
+    g.gain.linearRampToValueAtTime(0.0001, t + 0.2);
+    try { o.stop(t + 0.25); } catch (e) {}
+  }
+  function waterStart(){
+    if (!AC || loops.water) return;
+    var t = AC.currentTime;
+    var s = AC.createBufferSource(); s.buffer = nbuf(2); s.loop = true;
+    var f = AC.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1100; f.Q.value = 0.7;
+    var g = AC.createGain(); g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.1, t + 0.2);
+    var lfo = AC.createOscillator(); lfo.frequency.value = 0.4;
+    var lg = AC.createGain(); lg.gain.value = 450;
+    lfo.connect(lg); lg.connect(f.frequency);
+    s.connect(f); f.connect(g); g.connect(master);
+    s.start(t); lfo.start(t);
+    loops.water = { s:s, g:g, lfo:lfo };
+  }
+  function waterStop(){
+    if (!loops.water || !AC) return;
+    var w = loops.water, t = AC.currentTime;
+    loops.water = null;
+    w.g.gain.cancelScheduledValues(t);
+    w.g.gain.setValueAtTime(w.g.gain.value, t);
+    w.g.gain.linearRampToValueAtTime(0.0001, t + 0.15);
+    try { w.s.stop(t + 0.2); w.lfo.stop(t + 0.2); } catch (e) {}
+  }
+  function driveStart(){
+    if (!AC || loops.drive) return;
+    var t = AC.currentTime;
+    var s = AC.createBufferSource(); s.buffer = nbuf(2); s.loop = true;
+    var lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 220;
+    var g = AC.createGain(); g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.07, t + 0.3);
+    s.connect(lp); lp.connect(g); g.connect(master);
+    var o = AC.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 56;
+    var of = AC.createBiquadFilter(); of.type = 'lowpass'; of.frequency.value = 190;
+    var og = AC.createGain(); og.gain.setValueAtTime(0.0001, t);
+    og.gain.linearRampToValueAtTime(0.05, t + 0.3);
+    o.connect(of); of.connect(og); og.connect(master);
+    s.start(t); o.start(t);
+    loops.drive = { s:s, g:g, o:o, og:og };
+  }
+  function driveStop(){
+    if (!loops.drive || !AC) return;
+    var d = loops.drive, t = AC.currentTime;
+    loops.drive = null;
+    [d.g, d.og].forEach(function(g){
+      g.gain.cancelScheduledValues(t);
+      g.gain.setValueAtTime(g.gain.value, t);
+      g.gain.linearRampToValueAtTime(0.0001, t + 0.25);
+    });
+    try { d.s.stop(t + 0.3); d.o.stop(t + 0.3); } catch (e) {}
+  }
+
+  /* ================= SCHALTEN ================= */
+  var state = { ladder:false, lights:false, siren:false, door:false,
+                shutter:false, headlights:false, drive:false, water:false };
+  var cls = { ladder:'ladder-out', lights:'lights-on', siren:'siren-on', door:'door-open',
+              shutter:'shutter-open', headlights:'headlight-on', drive:'driving', water:'water-on' };
+
+  function toggle(key){
+    var on = state[key] = !state[key];
+    stage.classList.toggle(cls[key], on);
+    switch (key){
+      case 'ladder':
+        sfxWhirr();
+        if (!on && state.water){                       // Leiter eingefahren = Wasser aus
+          state.water = false; stage.classList.remove('water-on'); waterStop();
+        }
+        break;
+      case 'lights': beep(on ? 1180 : 640, 0.08, 0.05); break;
+      case 'siren': if (on) sirenStart(); else sirenStop(); break;
+      case 'door': sfxDoor(on); break;
+      case 'shutter': sfxRoll(); break;
+      case 'headlights': beep(on ? 760 : 520, 0.07, 0.05); break;
+      case 'drive': if (on) driveStart(); else driveStop(); break;
+      case 'water':
+        if (on){
+          waterStart();
+          if (!state.ladder){                          // ohne ausgefahrene Leiter geht das nicht
+            state.ladder = true; stage.classList.add('ladder-out'); sfxWhirr();
+          }
+        } else waterStop();
+        break;
+    }
+  }
+
+  function targetOf(node){
+    while (node && node !== stage){
+      if (node.getAttribute && node.getAttribute('data-toggle')) return node;
+      node = node.parentNode;
+    }
+    return null;
+  }
+  function onPress(e){
+    if (e.target === muteBtn) return;
+    unlockAudio();
+    scheduleIdle();
+    var el = targetOf(e.target);
+    if (!el) return;
+    if (e.cancelable) e.preventDefault();
+    toggle(el.getAttribute('data-toggle'));
+  }
+  if (window.PointerEvent) stage.addEventListener('pointerdown', onPress, { passive:false });
+  else {
+    stage.addEventListener('touchstart', function(e){
+      var t = e.changedTouches && e.changedTouches[0];
+      onPress({ target: t && document.elementFromPoint(t.clientX, t.clientY), cancelable:true,
+                preventDefault: function(){ e.preventDefault(); } });
+    }, { passive:false });
+    stage.addEventListener('mousedown', onPress, { passive:false });
+  }
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+  document.addEventListener('dblclick', function(e){ e.preventDefault(); });
+
+  /* ================= HINWEIS-RINGE (verschwinden beim ersten Tippen) ================= */
+  // Bildschirmkoordinaten -> SVG-Koordinaten (berücksichtigt CSS-Transformationen)
+  function toSvg(clientX, clientY){
+    var q = stage.createSVGPoint();
+    q.x = clientX; q.y = clientY;
+    return q.matrixTransform(stage.getScreenCTM().inverse());
+  }
+  function renderHints(){
+    while (hints.firstChild) hints.removeChild(hints.firstChild);
+    var seen = [];
+    var list = document.querySelectorAll('[data-hint]');
+    for (var i = 0; i < list.length; i++){
+      var el = list[i];
+      if (getComputedStyle(el).pointerEvents === 'none') continue;   // gerade nicht tippbar
+      var r = el.getBoundingClientRect();                            // echte Lage inkl. Animation
+      if (!r || r.width < 8 || r.height < 8) continue;
+      var q = toSvg(r.x + r.width / 2, r.y + r.height / 2);
+      var dup = false;
+      for (var j = 0; j < seen.length; j++){
+        var box = seen[j].box;
+        if (Math.hypot(seen[j].x - q.x, seen[j].y - q.y) < 100){ dup = true; break; }
+      }
+      if (dup) continue;
+      seen.push({ x:q.x, y:q.y, box:[r.x, r.y, r.x + r.width, r.y + r.height] });
+    }
+    seen.forEach(function(h){
+      var c = document.createElementNS(SVGNS, 'circle');
+      c.setAttribute('class', 'hint-ring');
+      c.setAttribute('cx', h.x); c.setAttribute('cy', h.y); c.setAttribute('r', 54);
+      hints.appendChild(c);
+      var d = document.createElementNS(SVGNS, 'circle');
+      d.setAttribute('class', 'hint-dot');
+      d.setAttribute('cx', h.x); d.setAttribute('cy', h.y); d.setAttribute('r', 13);
+      hints.appendChild(d);
+    });
+  }
+  var hintTimer = null, idleTimer = null;
+  function showHints(ms){
+    renderHints();
+    hints.style.opacity = '1';
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(function(){ hints.style.opacity = '0'; }, ms || 8000);
+  }
+  function scheduleIdle(){
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function(){ showHints(7000); }, 25000);
+  }
+  setTimeout(function(){ showHints(9000); }, 1300);
+  scheduleIdle();
+
+  /* ================= TON-KNOPF ================= */
+  muteBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    unlockAudio();
+    muted = !muted;
+    if (master && AC) master.gain.setTargetAtTime(muted ? 0 : 0.6, AC.currentTime, 0.05);
+    muteBtn.setAttribute('aria-label', muted ? 'Ton an' : 'Ton aus');
+    muteBtn.querySelector('.slash').style.display = muted ? '' : 'none';
+    muteBtn.querySelector('.snd1').style.display = muted ? 'none' : '';
+    muteBtn.querySelector('.snd2').style.display = muted ? 'none' : '';
+  });
+})();
+</script>
+</body>
+</html>
