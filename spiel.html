@@ -35,42 +35,48 @@
   @keyframes hornwig{from{transform:translate(0,0)}to{transform:translate(0,-4px)}}
   @keyframes waveout{0%{opacity:.9;stroke-width:5}100%{opacity:0;stroke-width:1}}
 
-  /* ---------- Drehleiter (drei Segmente) ---------- */
-  .laddergrp{transform:translate(615px,296px) rotate(180deg);
-    transition:transform 1.3s cubic-bezier(.35,.05,.2,1)}
-  #stage.ladder-out .laddergrp{transform:translate(615px,296px) rotate(285deg)}
-  .seg2{transform:translate(0px,0px);transition:transform 1.3s cubic-bezier(.35,.05,.2,1)}
-  #stage.ladder-out .seg2{transform:translate(240px,0px)}
-  .seg3{transform:translate(0px,0px);transition:transform 1.3s cubic-bezier(.35,.05,.2,1)}
-  #stage.ladder-out .seg3{transform:translate(240px,0px)}
+  /* ---------- Drehleiter: hinten gelagert, ragt nach vorn ueber ---------- */
+  .laddergrp{transform:translate(160px,302px) rotate(0deg);
+    transition:transform 1.4s cubic-bezier(.35,.05,.2,1)}
+  #stage.ladder-out .laddergrp{transform:translate(160px,302px) rotate(-48deg)}
+  .seg2{transform:translate(0px,0px);transition:transform 1.4s cubic-bezier(.35,.05,.2,1)}
+  #stage.ladder-out .seg2{transform:translate(220px,0px)}
+  .seg3{transform:translate(0px,0px);transition:transform 1.4s cubic-bezier(.35,.05,.2,1)}
+  #stage.ladder-out .seg3{transform:translate(220px,0px)}
+  /* Personenkorb dreht gegen die Leiter und bleibt dadurch aufrecht */
+  .basket{transform:rotate(0deg);transition:transform 1.4s cubic-bezier(.35,.05,.2,1)}
+  #stage.ladder-out .basket{transform:rotate(48deg)}
+  @media (orientation: landscape){
+    /* Querformat: flachere Leiter, damit alles im breiten Ausschnitt bleibt */
+    #stage.ladder-out .laddergrp{transform:translate(160px,302px) rotate(-24deg)}
+    #stage.ladder-out .basket{transform:rotate(24deg)}
+  }
 
-  /* ---------- Wasser ---------- */
+  /* ---------- Wasser (sitzt im Korb, deshalb immer aufrecht) ---------- */
   .water{opacity:0;transition:opacity .25s}
   #stage.water-on .water{opacity:1}
-  .jet{stroke-dasharray:20 13;animation:flow .42s linear infinite}         /* Strömung im Strahl */
+  .jet{stroke-dasharray:20 13;animation:flow .42s linear infinite}         /* Stroemung im Strahl */
   @keyframes flow{from{stroke-dashoffset:0}to{stroke-dashoffset:-33}}
-  .jetline{transform-origin:496px -6px;animation:wobble 1s ease-in-out infinite alternate}
+  .jetline{transform-origin:110px -14px;animation:wobble 1s ease-in-out infinite alternate}
   @keyframes wobble{from{transform:rotate(-1.4deg)}to{transform:rotate(1.4deg)}}
-  .mist{animation:mist .8s ease-in-out infinite alternate}                 /* Sprühnebel atmet */
+  .mist{animation:mist .8s ease-in-out infinite alternate}                 /* Spruehnebel atmet */
   @keyframes mist{from{opacity:.3;transform:translate(0,0)}
                   to{opacity:.85;transform:translate(10px,-7px)}}
   .spraydrop{animation:fall 1.15s linear infinite}                         /* Tropfen fallen ab */
   @keyframes fall{0%{opacity:0;transform:translate(0,0)}
                   12%{opacity:.95}
-                  100%{opacity:0;transform:translate(12px,130px)}}
+                  100%{opacity:0;transform:translate(6px,140px)}}
   .waterzone{pointer-events:none}
   #stage.ladder-out .waterzone{pointer-events:all}
 
-  /* ---------- Querformat: flachere Leiter, weiter Ausschnitt ---------- */
-  @media (orientation: landscape){
-    /* Leiter legt sich diagonal über den breiten Himmel */
-    #stage.ladder-out .laddergrp{transform:translate(615px,296px) rotate(200deg)}
-    /* Tropfen fallen auch bei gedrehter Leiter nach unten (lokale Richtung dreht mit) */
-    .spraydrop{animation-name:fallQ}
-    @keyframes fallQ{0%{opacity:0;transform:translate(0,0)}
-                     12%{opacity:.95}
-                     100%{opacity:0;transform:translate(-44px,-122px)}}
-  }
+  /* ---------- Personen ---------- */
+  #stage.figure-on .groundfig .step{animation:step 1.05s ease-in-out infinite alternate}
+  @keyframes step{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+  #stage.figure-on .groundfig .body{animation:walkbob .52s ease-in-out infinite alternate}
+  @keyframes walkbob{from{transform:translate(0,0)}to{transform:translate(0,-5px)}}
+  #stage.figure-on .groundfig .arm{animation:wave .55s ease-in-out infinite alternate}
+  #stage.ladder-out .basket .arm{animation:wave .6s ease-in-out infinite alternate}
+  @keyframes wave{from{transform:rotate(-9deg)}to{transform:rotate(11deg)}}
 
   /* ---------- Fahrertür ---------- */
   /* Tür: Scharnier an der Vorderkante (802/379), schwenkt nach vorn-außen und erscheint verkürzt */
@@ -399,77 +405,153 @@
     <rect x="566" y="280" width="94" height="22" rx="8" fill="#3a424a"/>
     <rect x="578" y="272" width="70" height="14" rx="7" fill="url(#chromeG)"/>
 
-    <!-- ============ DREHLEITER: Drehpunkt = Ursprung der Gruppe ============ -->
+    <!-- ============ DREHLEITER: hinten gelagert (160/302), ragt nach vorn ueber ============ -->
     <g class="laddergrp">
-      <!-- 1. Segment (Grundleiter, fest) -->
+      <!-- 1. Segment (Grundleiter, fest am Lager) -->
       <g class="seg1">
-        <rect x="0" y="-14" width="412" height="11" rx="5" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
-        <rect x="0" y="3" width="412" height="11" rx="5" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+        <rect x="0" y="-15" width="412" height="12" rx="5" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+        <rect x="0" y="3" width="412" height="12" rx="5" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
         <rect x="0" y="-6" width="412" height="12" fill="url(#rungs1)"/>
-        <rect x="-26" y="-25" width="36" height="50" rx="9" fill="#b9c3cc" stroke="#8d99a4" stroke-width="2"/>
-        <rect data-toggle="ladder" x="0" y="-52" width="416" height="104" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+        <rect x="-8" y="-30" width="46" height="60" rx="10" fill="#b9c3cc" stroke="#8d99a4" stroke-width="2"/>
+        <circle cx="15" cy="0" r="9" fill="#3a424a"/>
+        <rect data-toggle="ladder" x="0" y="-62" width="416" height="80" fill="#000" fill-opacity="0" style="pointer-events:all"/>
       </g>
 
-      <rect data-hint x="-40" y="-34" width="84" height="68" fill="#000" fill-opacity="0" style="pointer-events:none"/>
+      <rect data-hint x="-10" y="-34" width="66" height="70" fill="#000" fill-opacity="0" style="pointer-events:none"/>
 
-      <!-- 2. Segment (fährt aus) -->
+      <!-- 2. Segment (faehrt aus) -->
       <g class="seg2">
-        <rect x="0" y="-11" width="462" height="9.5" rx="4" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
-        <rect x="0" y="1.5" width="462" height="9.5" rx="4" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+        <rect x="0" y="-12" width="462" height="10" rx="4" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+        <rect x="0" y="2" width="462" height="10" rx="4" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
         <rect x="0" y="-4" width="462" height="8" fill="url(#rungs2)"/>
-        <rect data-toggle="ladder" x="0" y="-52" width="466" height="104" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+        <rect data-toggle="ladder" x="0" y="-62" width="466" height="80" fill="#000" fill-opacity="0" style="pointer-events:all"/>
 
-        <!-- 3. Segment (Spitzenstück mit Düse, fährt mit aus) -->
+        <!-- 3. Segment (Spitzenstueck, faehrt mit aus) -->
         <g class="seg3">
-          <rect x="0" y="-9" width="470" height="7.5" rx="3" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
-          <rect x="0" y="1.5" width="470" height="7.5" rx="3" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+          <rect x="0" y="-10" width="470" height="8" rx="3" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
+          <rect x="0" y="2" width="470" height="8" rx="3" fill="url(#ladderG)" stroke="#8d99a4" stroke-width="2"/>
           <rect x="0" y="-3" width="470" height="6" fill="url(#rungs3)"/>
-          <rect x="462" y="-15" width="32" height="30" rx="10" fill="url(#chromeG)" stroke="#8d99a4" stroke-width="3"/>
-          <rect x="456" y="-4" width="12" height="8" rx="4" fill="#c11219"/>
+          <rect data-toggle="ladder" x="0" y="-62" width="458" height="80" fill="#000" fill-opacity="0" style="pointer-events:all"/>
 
-          <!-- Wasserstrahl: fließend, mit Sprühnebel und Gischt -->
-          <g class="water">
-            <!-- Strahl: vier Lagen, die Strömung wandert entlang des Bogens -->
-            <g class="jetline">
-              <path d="M494 -6 Q586 -54 692 -32" fill="none" stroke="#7cc7ef" stroke-width="34" stroke-linecap="round" opacity=".35"/>
-              <path d="M494 -6 Q586 -54 692 -32" fill="none" stroke="#a9dcf7" stroke-width="23" stroke-linecap="round" opacity=".6"/>
-              <path class="jet" d="M494 -6 Q586 -54 692 -32" fill="none" stroke="#e4f6ff" stroke-width="13" stroke-linecap="round"/>
-              <path class="jet" d="M494 -6 Q586 -54 692 -32" fill="none" stroke="#ffffff" stroke-width="5"
-                    stroke-linecap="round" style="animation-duration:.3s"/>
+          <!-- Personenkorb am Leiterende: dreht gegen die Leiter, bleibt aufrecht -->
+          <g transform="translate(470,-6)">
+            <g class="basket">
+              <!-- Korbgeruest -->
+              <rect x="-76" y="-104" width="152" height="12" rx="5" fill="#2b3238"/>
+              <rect x="-72" y="-12" width="144" height="14" rx="4" fill="#3a424a"/>
+              <rect x="-72" y="-8" width="144" height="5" fill="#6f7982"/>
+              <g fill="#2b3238">
+                <rect x="-74" y="-104" width="8" height="98"/><rect x="-46" y="-104" width="7" height="98"/>
+                <rect x="-18" y="-104" width="7" height="98"/><rect x="10" y="-104" width="7" height="98"/>
+                <rect x="38" y="-104" width="7" height="98"/><rect x="66" y="-104" width="8" height="98"/>
+              </g>
+              <g fill="#2b3238" opacity=".9">
+                <rect x="-72" y="-78" width="144" height="6"/><rect x="-72" y="-50" width="144" height="6"/>
+                <rect x="-72" y="-24" width="144" height="6"/>
+              </g>
+              <rect x="-82" y="-112" width="164" height="10" rx="5" fill="#1f262c"/>
+              <!-- Warnleuchte -->
+              <rect x="66" y="-132" width="18" height="16" rx="5" fill="#c11219"/>
+              <circle cx="75" cy="-124" r="10" fill="#ff6a6a" opacity=".45"/>
+              <!-- Feuerwehrmann im Korb -->
+    <g class="fig basketfig" transform="translate(-18,-14)">
+      <rect x="-21" y="-76" width="17" height="66" rx="8" fill="#1f3a63" stroke="#16294a" stroke-width="2"/>
+      <rect x="4" y="-76" width="17" height="66" rx="8" fill="#1f3a63" stroke="#16294a" stroke-width="2"/>
+      <rect x="-24" y="-14" width="23" height="16" rx="6" fill="#22262a"/>
+      <rect x="1" y="-14" width="23" height="16" rx="6" fill="#22262a"/>
+      <rect x="-29" y="-130" width="58" height="60" rx="13" fill="#22406b"/>
+      <rect x="-29" y="-108" width="58" height="9" fill="#f2c53d"/>
+      <rect x="-29" y="-92" width="58" height="8" fill="#e8eef3"/>
+      <rect x="-29" y="-80" width="58" height="7" rx="3" fill="#16294a"/>
+      <rect x="-6" y="-130" width="12" height="60" fill="#1a3050" opacity=".45"/>
+      <circle cx="0" cy="-150" r="20" fill="#f0c39a"/>
+      <circle cx="-14" cy="-145" r="4" fill="#e8a98a" opacity=".5"/>
+      <circle cx="14" cy="-145" r="4" fill="#e8a98a" opacity=".5"/>
+      <circle cx="-7" cy="-152" r="3.2" fill="#2b3238"/><circle cx="7" cy="-152" r="3.2" fill="#2b3238"/>
+      <path d="M-8 -141 q8 7 16 0" stroke="#c98d6b" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M-23 -157 a23 23 0 0 1 46 0 z" fill="#f2c53d"/>
+      <rect x="-28" y="-161" width="56" height="10" rx="5" fill="#e0a92c"/>
+      <rect x="-5" y="-183" width="10" height="14" rx="4" fill="#e0a92c"/>
+      <circle cx="0" cy="-168" r="6" fill="#e8eef3" opacity=".75"/>
+      <g transform="translate(-27,-120) rotate(7)"><g class="armdown">
+        <rect x="-8" y="0" width="16" height="56" rx="8" fill="#22406b"/>
+        <circle cx="0" cy="58" r="10" fill="#f0c39a"/></g></g>
+      <g transform="translate(27,-122) rotate(38)"><g class="arm">
+        <rect x="-8" y="-58" width="16" height="58" rx="8" fill="#22406b"/>
+        <circle cx="0" cy="-62" r="10" fill="#f0c39a"/></g></g>
+      <rect data-toggle="figure" data-hint x="-62" y="-202" width="124" height="214" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    </g>
+              <!-- Wasserkanone am Korb -->
+              <g transform="translate(78,-64)">
+                <rect x="-10" y="-12" width="30" height="24" rx="8" fill="#39424a"/>
+                <rect x="16" y="-8" width="34" height="16" rx="6" fill="url(#chromeG)" stroke="#8d99a4" stroke-width="2"/>
+              </g>
+              <!-- Wasserstrahl (im Korb, also immer waagerecht) -->
+              <g class="water">
+                <g class="jetline">
+                  <path d="M118 -62 Q214 -116 330 -84" fill="none" stroke="#7cc7ef" stroke-width="34" stroke-linecap="round" opacity=".35"/>
+                  <path d="M118 -62 Q214 -116 330 -84" fill="none" stroke="#a9dcf7" stroke-width="23" stroke-linecap="round" opacity=".6"/>
+                  <path class="jet" d="M118 -62 Q214 -116 330 -84" fill="none" stroke="#e4f6ff" stroke-width="13" stroke-linecap="round"/>
+                  <path class="jet" d="M118 -62 Q214 -116 330 -84" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" style="animation-duration:.3s"/>
+                </g>
+                <g class="mist" fill="#eefaff">
+                  <circle cx="124" cy="-64" r="26" opacity=".55"/>
+                  <circle cx="148" cy="-80" r="19" opacity=".5"/>
+                  <circle cx="136" cy="-46" r="16" opacity=".45"/>
+                  <circle cx="170" cy="-94" r="12" opacity=".4"/>
+                  <circle cx="122" cy="-80" r="11" opacity=".35"/>
+                  <circle cx="154" cy="-60" r="9" opacity=".3"/>
+                </g>
+                <path class="mist" d="M220 -118 q34 -22 70 -10" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" opacity=".45"/>
+                <path class="mist" d="M184 -104 q26 -14 52 -10" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" opacity=".35" style="animation-delay:.35s"/>
+                <g fill="#f2feff">
+                  <circle class="spraydrop" cx="286" cy="-86" r="9"/>
+                  <circle class="spraydrop" cx="302" cy="-94" r="7" style="animation-delay:.14s"/>
+                  <circle class="spraydrop" cx="316" cy="-84" r="8" style="animation-delay:.28s"/>
+                  <circle class="spraydrop" cx="276" cy="-76" r="6" style="animation-delay:.42s"/>
+                  <circle class="spraydrop" cx="328" cy="-92" r="6" style="animation-delay:.56s"/>
+                  <circle class="spraydrop" cx="294" cy="-70" r="8" style="animation-delay:.7s"/>
+                  <circle class="spraydrop" cx="310" cy="-74" r="6.5" style="animation-delay:.84s"/>
+                  <circle class="spraydrop" cx="322" cy="-68" r="5.5" style="animation-delay:.98s"/>
+                </g>
+              </g>
+              <g class="waterzone">
+                <rect data-toggle="water" data-hint x="20" y="-108" width="150" height="94" fill="#000" fill-opacity="0"/>
+              </g>
             </g>
-            <!-- Sprühnebel an der Düse -->
-            <g class="mist" fill="#eefaff">
-              <circle cx="500" cy="-8" r="26" opacity=".55"/>
-              <circle cx="524" cy="-24" r="19" opacity=".5"/>
-              <circle cx="512" cy="10" r="16" opacity=".45"/>
-              <circle cx="546" cy="-38" r="12" opacity=".4"/>
-              <circle cx="498" cy="-24" r="11" opacity=".35"/>
-              <circle cx="530" cy="-4" r="9" opacity=".3"/>
-            </g>
-            <!-- Gischtbogen über dem Strahl -->
-            <path class="mist" d="M596 -62 q34 -22 70 -10" fill="none" stroke="#ffffff" stroke-width="9"
-                  stroke-linecap="round" opacity=".45"/>
-            <path class="mist" d="M560 -48 q26 -14 52 -10" fill="none" stroke="#ffffff" stroke-width="6"
-                  stroke-linecap="round" opacity=".35" style="animation-delay:.35s"/>
-            <!-- Regentropfen, die vom Strahlende herabfallen -->
-            <g fill="#f2feff">
-              <circle class="spraydrop" cx="648" cy="-30" r="9"/>
-              <circle class="spraydrop" cx="664" cy="-38" r="7" style="animation-delay:.14s"/>
-              <circle class="spraydrop" cx="678" cy="-28" r="8" style="animation-delay:.28s"/>
-              <circle class="spraydrop" cx="638" cy="-20" r="6" style="animation-delay:.42s"/>
-              <circle class="spraydrop" cx="690" cy="-36" r="6" style="animation-delay:.56s"/>
-              <circle class="spraydrop" cx="656" cy="-14" r="8" style="animation-delay:.7s"/>
-              <circle class="spraydrop" cx="672" cy="-18" r="6.5" style="animation-delay:.84s"/>
-              <circle class="spraydrop" cx="684" cy="-12" r="5.5" style="animation-delay:.98s"/>
-            </g>
-          </g>
-
-          <rect data-toggle="ladder" x="0" y="-52" width="458" height="104" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-          <g class="waterzone">
-            <rect data-toggle="water" data-hint x="452" y="-58" width="150" height="116" fill="#000" fill-opacity="0"/>
           </g>
         </g>
       </g>
+    </g>
+
+    <!-- Feuerwehrmann am Boden (laeuft und winkt) -->
+    <g class="fig groundfig" transform="translate(1180,522)">
+      <ellipse cx="0" cy="4" rx="44" ry="9" fill="#000" opacity=".22"/>
+      <g transform="translate(-14,-76)"><g class="step" style="animation-delay:0s"><rect x="-9" y="0" width="18" height="64" rx="8" fill="#1f3a63" stroke="#16294a" stroke-width="2"/><rect x="-13" y="58" width="26" height="18" rx="7" fill="#22262a"/></g></g>
+      <g transform="translate(14,-76)"><g class="step" style="animation-delay:-.52s"><rect x="-9" y="0" width="18" height="64" rx="8" fill="#1f3a63" stroke="#16294a" stroke-width="2"/><rect x="-13" y="58" width="26" height="18" rx="7" fill="#22262a"/></g></g>
+      <g class="body">
+      <rect x="-29" y="-130" width="58" height="60" rx="13" fill="#22406b"/>
+      <rect x="-29" y="-108" width="58" height="9" fill="#f2c53d"/>
+      <rect x="-29" y="-92" width="58" height="8" fill="#e8eef3"/>
+      <rect x="-29" y="-80" width="58" height="7" rx="3" fill="#16294a"/>
+      <rect x="-6" y="-130" width="12" height="60" fill="#1a3050" opacity=".45"/>
+      <circle cx="0" cy="-150" r="20" fill="#f0c39a"/>
+      <circle cx="-14" cy="-145" r="4" fill="#e8a98a" opacity=".5"/>
+      <circle cx="14" cy="-145" r="4" fill="#e8a98a" opacity=".5"/>
+      <circle cx="-7" cy="-152" r="3.2" fill="#2b3238"/><circle cx="7" cy="-152" r="3.2" fill="#2b3238"/>
+      <path d="M-8 -141 q8 7 16 0" stroke="#c98d6b" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M-23 -157 a23 23 0 0 1 46 0 z" fill="#f2c53d"/>
+      <rect x="-28" y="-161" width="56" height="10" rx="5" fill="#e0a92c"/>
+      <rect x="-5" y="-183" width="10" height="14" rx="4" fill="#e0a92c"/>
+      <circle cx="0" cy="-168" r="6" fill="#e8eef3" opacity=".75"/>
+      <g transform="translate(-27,-120) rotate(7)"><g class="armdown">
+        <rect x="-8" y="0" width="16" height="56" rx="8" fill="#22406b"/>
+        <circle cx="0" cy="58" r="10" fill="#f0c39a"/></g></g>
+      <g transform="translate(27,-122) rotate(38)"><g class="arm">
+        <rect x="-8" y="-58" width="16" height="58" rx="8" fill="#22406b"/>
+        <circle cx="0" cy="-62" r="10" fill="#f0c39a"/></g></g>
+      </g>
+      <rect data-toggle="figure" data-hint x="-62" y="-202" width="124" height="214" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     </g>
 
     <!-- Tippflächen -->
@@ -511,20 +593,18 @@
     if (!w0 || !h0) return;
     var ar = Math.max(0.25, w0 / h0);
     var w, h, vy, vx;
+    // Inhalt = Fahrzeug + Leiter samt Korb + Wasserstrahl + Figuren
+    var x0, x1, y0, y1;
     if (h0 >= w0){
-      // Hochformat: schmaler Ausschnitt, Leiter steil nach oben
-      w = 1120; h = w / ar;
-      if (h < 400){ h = 400; w = h * ar; }
-      vy = Math.min(GROUND - h * 0.70, 30);
-      vx = TRUCK_CX - w/2;
+      x0 = -40; x1 = 1290; y0 = -560; y1 = 660;    // Leiter steil (-48 Grad)
     } else {
-      // Querformat: nach dem Inhalt einrahmen (Fahrzeug + flache Leiter + Wasser)
-      var x0 = -640, x1 = 1340, y0 = -210, y1 = 620;
-      w = Math.max(x1 - x0, (y1 - y0) * ar);
-      h = w / ar;
-      vx = (x0 + x1) / 2 - w/2;
-      vy = (y0 + y1) / 2 - h/2;
+      x0 = -120; x1 = 1420; y0 = -300; y1 = 660;   // Leiter flacher (-24 Grad)
     }
+    w = Math.max(x1 - x0, (y1 - y0) * ar);
+    h = w / ar;
+    if (h < y1 - y0){ h = y1 - y0; w = h * ar; }   // sehr breite Fenster
+    vx = (x0 + x1) / 2 - w/2;
+    vy = Math.min(GROUND - h * 0.84, y0 - 20);     // Boden bei 84 %, Korb bleibt sichtbar
     stage.setAttribute('viewBox', vx.toFixed(1) + ' ' + vy.toFixed(1) + ' ' +
                                    w.toFixed(1) + ' ' + h.toFixed(1));
   }
@@ -687,9 +767,10 @@
 
   /* ================= SCHALTEN ================= */
   var state = { ladder:false, lights:false, siren:false, door:false,
-                shutter:false, headlights:false, drive:false, water:false };
+                shutter:false, headlights:false, drive:false, water:false, figure:false };
   var cls = { ladder:'ladder-out', lights:'lights-on', siren:'siren-on', door:'door-open',
-              shutter:'shutter-open', headlights:'headlight-on', drive:'driving', water:'water-on' };
+              shutter:'shutter-open', headlights:'headlight-on', drive:'driving', water:'water-on',
+              figure:'figure-on' };
 
   function toggle(key){
     var on = state[key] = !state[key];
@@ -706,6 +787,10 @@
       case 'door': sfxDoor(on); break;
       case 'shutter': sfxRoll(); break;
       case 'headlights': beep(on ? 760 : 520, 0.07, 0.05); break;
+      case 'figure':
+        if (on){ beep(880, 0.09, 0.05); setTimeout(function(){ beep(1320, 0.12, 0.045); }, 130); }
+        else beep(660, 0.09, 0.045);
+        break;
       case 'drive': if (on) driveStart(); else driveStop(); break;
       case 'water':
         if (on){
