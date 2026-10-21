@@ -78,6 +78,16 @@
   #stage.ladder-out .basket .arm{animation:wave .6s ease-in-out infinite alternate}
   @keyframes wave{from{transform:rotate(-9deg)}to{transform:rotate(11deg)}}
 
+  /* Rollo offen + Maennchen angetippt: Schlauch von der Rolle nehmen, dabei stehen bleiben */
+  #stage.figure-on.shutter-open .groundfig .step{animation:none}
+  #stage.figure-on.shutter-open .groundfig .body{animation:hosesway 1.3s ease-in-out infinite alternate}
+  @keyframes hosesway{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
+  #stage.figure-on.shutter-open .groundfig .arm{animation:none;transform:rotate(10deg)}
+  #stage.figure-on.shutter-open .groundfig .armdown{animation:hosehand .85s ease-in-out infinite alternate}
+  @keyframes hosehand{from{transform:rotate(-7deg)}to{transform:rotate(5deg)}}
+  .hose{opacity:0;transition:opacity .35s}
+  #stage.figure-on.shutter-open .hose{opacity:1}
+
   /* ---------- Fahrertuer ----------
      Scharnier an der Vorderkante (804/379). Die Tuer schwenkt zum Betrachter heraus:
      sie verkuerzt sich, bleibt dabei aber aufrecht (keine Drehung). */
@@ -549,8 +559,22 @@
       </g>
     </g>
 
-    <!-- Feuerwehrmann am Boden (laeuft und winkt) -->
-    <g class="fig groundfig" transform="translate(1180,522)">
+    <!-- Schlauch: liegt auf der Rolle im Geraeteraum, wird herausgenommen -->
+    <g class="hose">
+      <!-- Schlauch vom Geraeteraum zur Hand des Maennchens (Hand bei 97/360) -->
+      <path d="M214 380 C170 402 128 396 104 372" fill="none" stroke="#6f7982" stroke-width="34" stroke-linecap="round"/>
+      <path d="M214 380 C170 402 128 396 104 372" fill="none" stroke="#eef3f7" stroke-width="26" stroke-linecap="round"/>
+      <path d="M214 380 C170 402 128 396 104 372" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" opacity=".65"/>
+      <!-- Strahlrohr in der Hand -->
+      <rect x="78" y="344" width="54" height="21" rx="9" fill="#39424a" transform="rotate(-38 105 354)"/>
+      <rect x="118" y="322" width="44" height="18" rx="7" fill="url(#chromeG)" stroke="#8d99a4" stroke-width="2" transform="rotate(-38 140 331)"/>
+      <!-- Schlauchende, das auf dem Boden liegt -->
+      <path d="M104 374 C92 408 96 452 118 486" fill="none" stroke="#6f7982" stroke-width="32" stroke-linecap="round"/>
+      <path d="M104 374 C92 408 96 452 118 486" fill="none" stroke="#eef3f7" stroke-width="24" stroke-linecap="round"/>
+    </g>
+
+    <!-- Feuerwehrmann am Heck (winkt, oder nimmt den Schlauch) -->
+    <g class="fig groundfig" transform="translate(20,522)">
       <ellipse cx="0" cy="4" rx="44" ry="9" fill="#000" opacity=".22"/>
       <g transform="translate(-14,-76)"><g class="step" style="animation-delay:0s"><rect x="-9" y="0" width="18" height="64" rx="8" fill="#1f3a63" stroke="#16294a" stroke-width="2"/><rect x="-13" y="58" width="26" height="18" rx="7" fill="#22262a"/></g></g>
       <g transform="translate(14,-76)"><g class="step" style="animation-delay:-.52s"><rect x="-9" y="0" width="18" height="64" rx="8" fill="#1f3a63" stroke="#16294a" stroke-width="2"/><rect x="-13" y="58" width="26" height="18" rx="7" fill="#22262a"/></g></g>
@@ -813,8 +837,12 @@
       case 'shutter': sfxRoll(); break;
       case 'headlights': beep(on ? 760 : 520, 0.07, 0.05); break;
       case 'figure':
-        if (on){ beep(880, 0.09, 0.05); setTimeout(function(){ beep(1320, 0.12, 0.045); }, 130); }
-        else beep(660, 0.09, 0.045);
+        if (on){
+          if (state.shutter){                        // Rollo offen: Schlauch von der Rolle nehmen
+            sweep({ f0: 1500, f1: 260, dur: 0.38, vol: 0.085, q: 1.2 });
+            setTimeout(function(){ beep(760, 0.09, 0.05); }, 300);
+          } else { beep(880, 0.09, 0.05); setTimeout(function(){ beep(1320, 0.12, 0.045); }, 130); }
+        } else beep(660, 0.09, 0.045);
         break;
       case 'drive': if (on) driveStart(); else driveStop(); break;
       case 'water':
