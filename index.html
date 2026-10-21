@@ -78,11 +78,26 @@
   #stage.ladder-out .basket .arm{animation:wave .6s ease-in-out infinite alternate}
   @keyframes wave{from{transform:rotate(-9deg)}to{transform:rotate(11deg)}}
 
-  /* ---------- Fahrertür ---------- */
-  /* Tür: Scharnier an der Vorderkante (802/379), schwenkt nach vorn-außen und erscheint verkürzt */
-  .door{transform:translate(802px,379px) rotate(0deg) scale(1,1) translate(-802px,-379px);
+  /* ---------- Fahrertuer ----------
+     Scharnier an der Vorderkante (804/379). Die Tuer schwenkt zum Betrachter heraus:
+     sie verkuerzt sich, bleibt dabei aber aufrecht (keine Drehung). */
+  /* Geschlossen: unveraendert an ihrem Platz (Verschiebung hebt sich auf) */
+  .door{transform:translate(806px,379px) scale(1,1) translate(-806px,-379px);
         transition:transform .65s cubic-bezier(.4,.05,.25,1)}
-  #stage.door-open .door{transform:translate(802px,379px) rotate(20deg) scale(.33,1.02) translate(78px,0) translate(-802px,-379px)}
+  /* Offen: Tuer schwingt am vorderen Scharnier (804) nach vorn, bleibt aufrecht, Griff hinten */
+  #stage.door-open .door{transform:translate(804px,379px) scale(.44,1) translate(-804px,-379px)}
+  /* Scharniere sind nur bei geschlossener Tuer am Rahmen zu sehen */
+  .door .hinge{opacity:1;transition:opacity .3s}
+  #stage.door-open .door .hinge{opacity:0}
+  /* Tuerkante: bei offener Tuer dunkle Innenseite andeuten */
+  .door .inner{opacity:0;transition:opacity .4s}
+  #stage.door-open .door .inner{opacity:1}
+  /* Kante der geoeffneten Tuer: heller Streifen macht den Schwenk sichtbar */
+  .door .edge{opacity:0;transition:opacity .4s}
+  #stage.door-open .door .edge{opacity:.85}
+  /* Lichtkegel: die Tuer wirft Schatten in die Kabine */
+  .doorlight{opacity:0;transition:opacity .5s}
+  #stage.door-open .doorlight{opacity:1}
 
   /* ---------- Geräteraum ---------- */
   .shutter{transform:translate(0px,0px);transition:transform .95s cubic-bezier(.3,.1,.2,1)}
@@ -363,13 +378,23 @@
       <rect x="777" y="392" width="8" height="22" fill="#1b1f23"/>
     </g>
 
-    <!-- Fahrertür -->
+    <!-- Fahrertuer: Scharnier an der Vorderkante (rechts), Griff an der Hinterkante (links) -->
     <g class="door">
       <rect x="690" y="306" width="112" height="146" rx="6" fill="url(#redL)" stroke="#8d0f16" stroke-width="3"/>
+      <rect class="inner" x="692" y="308" width="108" height="142" rx="5" fill="#611418"/>
+      <rect class="edge" x="693" y="309" width="7" height="140" rx="3" fill="#e06a6f"/>
       <rect x="700" y="316" width="92" height="54" rx="7" fill="url(#glassG)" stroke="#7c8894" stroke-width="3"/>
       <rect x="704" y="322" width="34" height="16" rx="6" fill="#fff" opacity=".55"/>
       <rect x="694" y="384" width="104" height="4" rx="2" fill="#fff" opacity=".35"/>
-      <rect x="778" y="374" width="18" height="7" rx="3" fill="#cfd6dc"/>
+      <!-- Griff an der hinteren Tuerkante -->
+      <rect x="697" y="370" width="22" height="9" rx="4" fill="#cfd6dc"/>
+      <rect x="701" y="373" width="14" height="3" rx="1.5" fill="#98a3ad"/>
+      <circle cx="708" cy="394" r="4" fill="#98a3ad"/>
+      <!-- Scharniere an der vorderen Tuerkante -->
+      <g class="hinge">
+        <rect x="792" y="328" width="14" height="11" rx="4" fill="#8d99a4"/>
+        <rect x="792" y="418" width="14" height="11" rx="4" fill="#8d99a4"/>
+      </g>
     </g>
 
     <!-- Dach -->
