@@ -1096,8 +1096,9 @@
 
   <!-- Tippbereich fuer den Schlauchstrahl am Heck (nur bei Schlauch in der Hand) -->
   <g id="hosehit">
-    <rect data-toggle="hosewater" x="-320" y="150" width="150" height="290" fill="#000" fill-opacity="0"
-          style="pointer-events:all"/>
+    <rect data-toggle="hosewater" x="-458" y="196" width="416" height="348" fill="#000" fill-opacity="0"/>
+    <!-- kleine Flaeche genau an der Duese: hier sitzt der Hinweisring -->
+    <rect data-toggle="hosewater" data-hint x="-112" y="372" width="94" height="76" fill="#000" fill-opacity="0"/>
   </g>
   <g id="hints"></g>
   <g id="warn"></g>
