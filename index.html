@@ -189,11 +189,6 @@
   /* ---------- Fahrtrichtung ----------
      Auf der Rueckfahrt dreht sich der Wagen (Spiegelung um die Radmitte).
      Die Tippflaechen bleiben ungespiegelt und damit erreichbar. */
-  #orient{transform-origin:500px 464px;transition:transform 1.1s ease-in-out}
-  #stage.home #orient{transform:scale(-1,1)}
-  .txtL{display:none}
-  #stage.home .txtR{display:none}
-  #stage.home .txtL{display:inline}
 </style>
 </head>
 <body>
@@ -557,8 +552,7 @@
 
   <!-- ================= FEUERWEHRAUTO ================= -->
   <g id="truck">
-    <g id="orient">
-
+    
     <ellipse cx="500" cy="528" rx="490" ry="22" fill="url(#shadowG)"/>
 
     <!-- Räder: äußere Gruppe = Position, innere Gruppe = Drehung um die eigene Mitte -->
@@ -960,12 +954,10 @@
       </g>
       <rect data-toggle="figure" data-hint x="-62" y="-202" width="124" height="214" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     </g>
-    </g>
 
-    <!-- Schriftzug: ausserhalb der Drehgruppe, damit er lesbar bleibt.
+    <!-- Schriftzug, damit er lesbar bleibt.
          Bei gedrehtem Wagen sitzt der Aufbau gespiegelt, der Text wandert mit. -->
-    <text class="txtR" x="120" y="445" font-size="15" font-weight="700" fill="#7a4a00" font-family="inherit" letter-spacing="2">FEUERWEHR</text>
-    <text class="txtL" x="770" y="445" font-size="15" font-weight="700" fill="#7a4a00" font-family="inherit" letter-spacing="2">FEUERWEHR</text>
+    <text x="120" y="445" font-size="15" font-weight="700" fill="#7a4a00" font-family="inherit" letter-spacing="2">FEUERWEHR</text>
 
     <!-- Tippflächen -->
     <rect data-toggle="door" data-hint x="668" y="296" width="156" height="184" fill="#000" fill-opacity="0" style="pointer-events:all"/>
@@ -1225,7 +1217,7 @@
   var LAND_SPAN = 8000, LAND_SECONDS = 60;
   var LAND_SPEED = LAND_SPAN / LAND_SECONDS;       // Einheiten pro Sekunde
   var landOffset = 0;                              // 0 bis -8000 (Hinfahrt)
-  var goingHome = false;                           // false = hin, true = zurueck
+  /* Kein Umdrehen: der Wagen faehrt immer vorwaerts, am Ende beginnt die Runde neu. */
   var landRAF = null, landLast = 0;
 
   function landApply(){
@@ -1250,31 +1242,22 @@
     if (!landLast){ landLast = ts; landRAF = requestAnimationFrame(landStep); return; }
     var dt = Math.min(0.1, (ts - landLast) / 1000);
     landLast = ts;
-    var ziel = goingHome ? 0 : -LAND_SPAN;
-    var schritt = (goingHome ? 1 : -1) * LAND_SPEED * dt;
-    if (Math.abs(ziel - landOffset) <= Math.abs(schritt)){
-      landOffset = ziel; landApply(); landStop(); return;      // Ziel erreicht
+    landOffset -= LAND_SPEED * dt;                 // immer vorwaerts
+    if (landOffset <= -LAND_SPAN){                 // Runde geschafft: neu beginnen
+      landOffset += LAND_SPAN;
+      if (landOffset > 0) landOffset = 0;
+      landApply();
+      landRAF = requestAnimationFrame(landStep);
+      return;
     }
-    landOffset += schritt;
     landApply();
     landRAF = requestAnimationFrame(landStep);
   }
   function landRun(){ landStop(); landRead(); landRAF = requestAnimationFrame(landStep); }
   function landFreeze(){ landStop(); landApply(); }
   function landReset(){
-    landStop(); goingHome = false;
-    stage.classList.remove('home');
+    landStop();
     landOffset = 0; landApply();
-  }
-  /* Ist die Strecke in der aktuellen Richtung zu Ende? */
-  function atLegEnd(){
-    var o = landRead();
-    return goingHome ? o >= -1 : o <= -LAND_SPAN + 1;
-  }
-  /* Am Ziel oder wieder am Start: beim naechsten Antippen umdrehen */
-  function turnAround(){
-    goingHome = !goingHome;
-    stage.classList.toggle('home', goingHome);
   }
 
   /* ---------- Fahr-Sperre ----------
@@ -1365,11 +1348,8 @@
         break;
       case 'lights': beep(on ? 1180 : 640, 0.08, 0.05); break;
       case 'drive':
-        if (on){
-          // Strecke zu Ende? Dann dreht sich der Wagen und faehrt zurueck
-          if (atLegEnd()) turnAround();
-          driveStart(); landRun();
-        } else { driveStop(); landFreeze(); }
+        if (on){ driveStart(); landRun(); }
+        else { driveStop(); landFreeze(); }
         break;
       case 'door': sfxDoor(on); break;
       case 'shutter': sfxRoll(); break;
