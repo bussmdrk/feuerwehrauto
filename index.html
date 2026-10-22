@@ -165,6 +165,8 @@
   @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
   #stage.driving .dashes{animation:scrollroad 1.1s linear infinite}
   @keyframes scrollroad{from{transform:translate(0,0)}to{transform:translate(-400px,0)}}
+  /* Die Landschaft wird per JS-Transition bewegt (siehe landRun/landFreeze),
+     damit Anhalten und Weiterfahren an jeder Stelle funktionieren. */
   #stage.driving #truck{animation:bob .5s ease-in-out infinite alternate}
   @keyframes bob{from{transform:translate(0,0)}to{transform:translate(0,-4px)}}
 
@@ -233,6 +235,151 @@
     <pattern id="rungs3" width="22" height="8" patternUnits="userSpaceOnUse">
       <rect x="8" width="5" height="8" fill="#d3dbe2"/>
     </pattern>
+    <!-- ===== Landschaft: ein Zyklus von 8000 Einheiten, wird dreimal gesetzt ===== -->
+    <g id="cycle">
+
+      <!-- ===== Feuerwehrhaus: hier steht der Wagen am Ende der Fahrt ===== -->
+      <g transform="translate(7430,520) scale(.62)">
+
+
+        <rect x="0" y="-224" width="700" height="224" rx="6" fill="#c8403c"/>
+        <rect x="0" y="-224" width="700" height="12" fill="#e05a55"/>
+        <rect x="-24" y="-244" width="748" height="26" rx="6" fill="#8d99a4"/>
+        <rect x="-24" y="-252" width="748" height="10" rx="5" fill="#b9c3cc"/>
+        <!-- Turm mit Glocke -->
+        <rect x="556" y="-352" width="120" height="112" rx="5" fill="#b8362f"/>
+        <polygon points="540,-352 676,-352 608,-424" fill="#8d99a4"/>
+        <rect x="596" y="-338" width="40" height="34" rx="6" fill="#2b3238"/>
+        <circle cx="616" cy="-322" r="14" fill="#f2c53d"/>
+        <circle cx="612" cy="-318" r="5" fill="#c99400"/>
+        <!-- Schriftband -->
+        <rect x="0" y="-190" width="700" height="40" fill="#f2c53d"/>
+        <rect x="0" y="-190" width="700" height="5" fill="#fff" opacity=".55"/>
+        <text x="350" y="-160" font-size="30" font-weight="800" fill="#7a4a00" text-anchor="middle" font-family="inherit" letter-spacing="4">FEUERWEHR</text>
+        <!-- zwei Tore -->
+        <rect x="46" y="-138" width="250" height="138" rx="5" fill="#2b3238"/>
+        <rect x="52" y="-132" width="238" height="132" rx="4" fill="#e9eef3"/>
+        <g fill="#c3ccd4">
+          <rect x="52" y="-116" width="238" height="7"/><rect x="52" y="-98" width="238" height="7"/>
+          <rect x="52" y="-80" width="238" height="7"/><rect x="52" y="-62" width="238" height="7"/>
+          <rect x="52" y="-44" width="238" height="7"/><rect x="52" y="-26" width="238" height="7"/>
+        </g>
+        <rect x="404" y="-138" width="250" height="138" rx="5" fill="#2b3238"/>
+        <rect x="410" y="-132" width="238" height="132" rx="4" fill="#e9eef3"/>
+        <g fill="#c3ccd4">
+          <rect x="410" y="-116" width="238" height="7"/><rect x="410" y="-98" width="238" height="7"/>
+          <rect x="410" y="-80" width="238" height="7"/><rect x="410" y="-62" width="238" height="7"/>
+          <rect x="410" y="-44" width="238" height="7"/><rect x="410" y="-26" width="238" height="7"/>
+        </g>
+        <!-- kleine Fenster -->
+        <rect x="330" y="-132" width="44" height="44" rx="4" fill="#8fc6e6" stroke="#7c8894" stroke-width="3"/>
+        <rect x="330" y="-70" width="44" height="44" rx="4" fill="#8fc6e6" stroke="#7c8894" stroke-width="3"/>
+        <circle cx="352" cy="-182" r="9" fill="#ffe600"/>
+        <circle cx="352" cy="-182" r="17" fill="#ffe600" opacity=".3"/>
+      </g>
+
+<!-- Busch -->
+      <g transform="translate(950,520)">
+        <circle cx="-26" cy="-24" r="24" fill="#3f8a52"/><circle cx="0" cy="-34" r="30" fill="#4fae6a"/>
+        <circle cx="28" cy="-22" r="22" fill="#3f8a52"/>
+        <rect x="-40" y="-10" width="80" height="10" rx="5" fill="#357a46"/>
+      </g>
+<g transform="translate(1200,520)">
+        <rect x="-8" y="-72" width="16" height="72" rx="5" fill="#7a5230"/>
+        <circle cx="0" cy="-118" r="46" fill="#3f8a52"/><circle cx="-34" cy="-96" r="32" fill="#357a46"/>
+        <circle cx="34" cy="-96" r="32" fill="#357a46"/><circle cx="0" cy="-148" r="34" fill="#4fae6a"/>
+        <circle cx="-16" cy="-130" r="14" fill="#63c795" opacity=".7"/>
+      </g>
+<g transform="translate(1520,520)">
+        <rect x="0" y="-124" width="204" height="124" rx="4" fill="#f7ead0"/>
+        <polygon points="-22,-124 102,-198 226,-124" fill="#b5533f"/>
+        <rect x="146" y="-186" width="24" height="46" rx="4" fill="#8d6a5a"/>
+        <rect x="34" y="-96" width="48" height="48" rx="4" fill="#8fc6e6" stroke="#fff" stroke-width="4"/>
+        <rect x="122" y="-96" width="48" height="48" rx="4" fill="#8fc6e6" stroke="#fff" stroke-width="4"/>
+        <rect x="76" y="-52" width="52" height="52" rx="4" fill="#7a5230"/>
+        <circle cx="120" cy="-26" r="4" fill="#f2c53d"/>
+      </g>
+<g transform="translate(2100,520)">
+        <rect x="-7" y="-56" width="14" height="56" rx="4" fill="#6b4a2a"/>
+        <polygon points="0,-206 -54,-108 54,-108" fill="#2f7a4a"/>
+        <polygon points="0,-166 -66,-64 66,-64" fill="#358a54"/>
+        <polygon points="0,-126 -76,-18 76,-18" fill="#2f7a4a"/>
+      </g>
+<g transform="translate(2480,520)">
+        <circle cx="-40" cy="-20" r="20" fill="#357a46"/><circle cx="-8" cy="-30" r="26" fill="#4fae6a"/>
+        <circle cx="24" cy="-22" r="22" fill="#3f8a52"/><circle cx="50" cy="-16" r="16" fill="#4fae6a"/>
+        <rect x="-58" y="-8" width="126" height="9" rx="4" fill="#357a46"/>
+      </g>
+<g transform="translate(2900,520)">
+        <rect x="0" y="-150" width="230" height="150" rx="4" fill="#ffffff"/>
+        <rect x="0" y="-150" width="230" height="10" fill="#e8eef3"/>
+        <polygon points="-24,-150 115,-236 254,-150" fill="#8d6a5a"/>
+        <rect x="176" y="-226" width="26" height="52" rx="4" fill="#6f5245"/>
+        <rect x="26" y="-124" width="52" height="52" rx="4" fill="#8fc6e6" stroke="#cfd6dc" stroke-width="4"/>
+        <rect x="152" y="-124" width="52" height="52" rx="4" fill="#8fc6e6" stroke="#cfd6dc" stroke-width="4"/>
+        <rect x="26" y="-58" width="52" height="52" rx="4" fill="#8fc6e6" stroke="#cfd6dc" stroke-width="4"/>
+        <rect x="90" y="-58" width="52" height="58" rx="4" fill="#6f5245"/>
+        <circle cx="132" cy="-28" r="4" fill="#f2c53d"/>
+      </g>
+<g transform="translate(3540,520)">
+        <rect x="-9" y="-84" width="18" height="84" rx="6" fill="#7a5230"/>
+        <circle cx="0" cy="-132" r="52" fill="#357a46"/><circle cx="-38" cy="-106" r="34" fill="#3f8a52"/>
+        <circle cx="38" cy="-106" r="34" fill="#3f8a52"/><circle cx="0" cy="-168" r="38" fill="#4fae6a"/>
+      </g>
+<g transform="translate(3960,520)">
+        <rect x="-7" y="-52" width="14" height="52" rx="4" fill="#6b4a2a"/>
+        <polygon points="0,-186 -48,-96 48,-96" fill="#2f7a4a"/>
+        <polygon points="0,-146 -60,-56 60,-56" fill="#358a54"/>
+        <polygon points="0,-108 -68,-14 68,-14" fill="#2f7a4a"/>
+      </g>
+<g transform="translate(4340,520)">
+        <rect x="0" y="-260" width="190" height="260" rx="4" fill="#dcd2c4"/>
+        <rect x="0" y="-260" width="190" height="12" fill="#efe7db"/>
+        <rect x="-10" y="-268" width="210" height="12" rx="4" fill="#8d99a4"/>
+        <g fill="#8fc6e6" stroke="#b9c3cc" stroke-width="3">
+          <rect x="20" y="-234" width="46" height="42" rx="3"/><rect x="84" y="-234" width="46" height="42" rx="3"/>
+          <rect x="146" y="-234" width="30" height="42" rx="3"/>
+          <rect x="20" y="-172" width="46" height="42" rx="3"/><rect x="84" y="-172" width="46" height="42" rx="3"/>
+          <rect x="146" y="-172" width="30" height="42" rx="3"/>
+          <rect x="20" y="-110" width="46" height="42" rx="3"/><rect x="84" y="-110" width="46" height="42" rx="3"/>
+          <rect x="146" y="-110" width="30" height="42" rx="3"/>
+        </g>
+      </g>
+<g transform="translate(5060,520)">
+        <circle cx="-22" cy="-22" r="22" fill="#3f8a52"/><circle cx="6" cy="-32" r="28" fill="#4fae6a"/>
+        <circle cx="32" cy="-20" r="20" fill="#357a46"/>
+        <rect x="-38" y="-8" width="76" height="9" rx="4" fill="#357a46"/>
+      </g>
+<g transform="translate(5340,520)">
+        <rect x="-8" y="-68" width="16" height="68" rx="5" fill="#7a5230"/>
+        <circle cx="0" cy="-114" r="44" fill="#3f8a52"/><circle cx="-30" cy="-92" r="30" fill="#357a46"/>
+        <circle cx="30" cy="-92" r="30" fill="#357a46"/><circle cx="0" cy="-142" r="32" fill="#4fae6a"/>
+      </g>
+<g transform="translate(5680,520)">
+        <rect x="0" y="-136" width="196" height="136" rx="4" fill="#f2dfa8"/>
+        <polygon points="-20,-136 98,-206 216,-136" fill="#4a7a52"/>
+        <rect x="140" y="-198" width="24" height="48" rx="4" fill="#8d99a4"/>
+        <rect x="30" y="-108" width="46" height="46" rx="4" fill="#8fc6e6" stroke="#fff" stroke-width="4"/>
+        <rect x="120" y="-108" width="46" height="46" rx="4" fill="#8fc6e6" stroke="#fff" stroke-width="4"/>
+        <rect x="74" y="-56" width="48" height="56" rx="4" fill="#7a5230"/>
+      </g>
+<g transform="translate(6260,520)">
+        <rect x="-7" y="-58" width="14" height="58" rx="4" fill="#6b4a2a"/>
+        <polygon points="0,-196 -52,-102 52,-102" fill="#358a54"/>
+        <polygon points="0,-152 -64,-58 64,-58" fill="#2f7a4a"/>
+        <polygon points="0,-114 -72,-16 72,-16" fill="#358a54"/>
+      </g>
+<g transform="translate(6600,520)">
+        <circle cx="-30" cy="-20" r="20" fill="#357a46"/><circle cx="0" cy="-28" r="24" fill="#4fae6a"/>
+        <circle cx="28" cy="-18" r="18" fill="#3f8a52"/>
+        <rect x="-46" y="-8" width="92" height="9" rx="4" fill="#357a46"/>
+      </g>
+<g transform="translate(6980,520)">
+        <rect x="-9" y="-78" width="18" height="78" rx="6" fill="#7a5230"/>
+        <circle cx="0" cy="-126" r="48" fill="#357a46"/><circle cx="-36" cy="-100" r="32" fill="#3f8a52"/>
+        <circle cx="36" cy="-100" r="32" fill="#3f8a52"/><circle cx="0" cy="-160" r="36" fill="#4fae6a"/>
+      </g>
+    </g>
     <clipPath id="shutterClip">
       <rect x="96" y="326" width="260" height="94" rx="4"/>
       <rect x="384" y="326" width="260" height="94" rx="4"/>
@@ -284,6 +431,15 @@
       <rect x="1600" y="628" width="132" height="18" rx="9"/><rect x="2000" y="628" width="132" height="18" rx="9"/>
       <rect x="2400" y="628" width="132" height="18" rx="9"/><rect x="2800" y="628" width="132" height="18" rx="9"/>
       <rect x="3200" y="628" width="132" height="18" rx="9"/><rect x="3600" y="628" width="132" height="18" rx="9"/>
+    </g>
+  </g>
+
+  <!-- ================= LANDSCHAFT: zieht beim Fahren vorbei ================= -->
+  <g id="landscape">
+    <g id="landscroll">
+      <use href="#cycle" x="-8000"/>
+      <use href="#cycle" x="0"/>
+      <use href="#cycle" x="8000"/>
     </g>
   </g>
 
@@ -784,9 +940,9 @@
     // Inhalt = Fahrzeug + Leiter samt Korb + Wasserstrahl + Figuren
     var x0, x1, y0, y1;
     if (h0 >= w0){
-      x0 = -340; x1 = 1290; y0 = -560; y1 = 660;   // Leiter steil; links Platz fuer Duese und Strahl
+      x0 = -620; x1 = 1290; y0 = -560; y1 = 660;   // links Platz fuer Duese, Strahl und Feuerwehrhaus
     } else {
-      x0 = -320; x1 = 1420; y0 = -300; y1 = 660;   // Leiter flacher; links Platz fuer Duesse und Strahl
+      x0 = -650; x1 = 1420; y0 = -300; y1 = 660;   // links Platz fuer Duesse, Strahl und Feuerwehrhaus
     }
     w = Math.max(x1 - x0, (y1 - y0) * ar);
     h = w / ar;
@@ -992,6 +1148,45 @@
               shutter:'shutter-open', headlights:'headlight-on', drive:'driving', water:'water-on',
               figure:'figure-on' };
 
+  /* ---------- Fahrt: Landschaft zieht vorbei ----------
+     Eine Zykluslaenge sind 8000 Einheiten; nach genau dieser Strecke steht der
+     Wagen am Feuerwehrhaus. Bewegung per JS-Transition, damit Anhalten die
+     erreichte Position einfriert und Weiterfahren dort wieder ansetzt. */
+  var LAND_SPAN = 8000, LAND_SECONDS = 60;
+  var landOffset = 0;      // wie weit die Landschaft schon gezogen ist
+  function landNow(){
+    var m = getComputedStyle(document.getElementById('landscroll')).transform;
+    if (m && m !== 'none'){
+      var parts = m.match(/matrix\(([^)]+)\)/);
+      if (parts) return parseFloat(parts[1].split(',')[4]) || 0;
+    }
+    return landOffset;
+  }
+  function landSet(px){
+    var el = document.getElementById('landscroll');
+    el.style.transition = 'none';
+    el.style.transform = 'translate(' + px + 'px,0)';
+    void el.offsetWidth;                 // Neuanlauf der Transition erzwingen
+  }
+  function landFreeze(){
+    landOffset = landNow();
+    landSet(landOffset);
+  }
+  function landRun(){
+    var el = document.getElementById('landscroll');
+    var rest = LAND_SPAN - ((-landOffset) % LAND_SPAN);   // Reststrecke bis zum Feuerwehrhaus
+    if (rest <= 1) rest = LAND_SPAN;
+    landSet(landOffset);
+    el.style.transition = 'transform ' + (rest * LAND_SECONDS / LAND_SPAN).toFixed(2) + 's linear';
+    el.style.transform = 'translate(-' + LAND_SPAN + 'px,0)';
+  }
+  function landReset(){
+    landOffset = 0;
+    landSet(0);
+    var el = document.getElementById('landscroll');
+    el.style.transition = '';
+  }
+
   /* ---------- Fahr-Sperre ----------
      Losfahren darf der Wagen nur, wenn die Leiter eingefahren, die Fahrertuer
      geschlossen, beide Rollaeden zu sind und das Maennchen stillsteht und sich
@@ -1091,7 +1286,10 @@
           } else { beep(880, 0.09, 0.05); setTimeout(function(){ beep(1320, 0.12, 0.045); }, 130); }
         } else beep(660, 0.09, 0.045);
         break;
-      case 'drive': if (on) driveStart(); else driveStop(); break;
+      case 'drive':
+        if (on){ driveStart(); landRun(); }
+        else { driveStop(); landFreeze(); }
+        break;
       case 'water':
         if (on){
           waterStart();
@@ -1106,6 +1304,7 @@
       state.drive = false;
       stage.classList.remove('driving');
       driveStop();
+      landFreeze();
       beepNope();
       warn(blockers());
     }
