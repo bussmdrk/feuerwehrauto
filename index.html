@@ -1412,6 +1412,7 @@
       landOffset += LAND_SPAN;
       if (landOffset > 0) landOffset = 0;
       landApply();
+      newLap();                                    // frische Strecke: es brennt wieder
       landRAF = requestAnimationFrame(landStep);
       return;
     }
@@ -1485,6 +1486,14 @@
     landStop();
     if (AC){ beep(880, 0.12, 0.06); setTimeout(function(){ beep(660, 0.16, 0.05); }, 150); }
     fireHint(currentFire);
+  }
+
+  /* Neue Runde: an beiden Stellen brennt es wieder */
+  function newLap(){
+    firesOut.A = false; firesOut.B = false;
+    currentFire = null; arrived = false;
+    stage.classList.remove('fireA-out', 'fireB-out');
+    fireHint(null);
   }
 
   /* Ist das Feuer jetzt geloescht? */
