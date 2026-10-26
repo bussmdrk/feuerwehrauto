@@ -1605,9 +1605,9 @@
         }
         break;
       case 'lights': beep(on ? 1180 : 640, 0.08, 0.05); break;
-      case 'drive':
-        if (on){ driveStart(); landRun(); }
-        else { driveStop(); landFreeze(); }
+      case 'siren':
+        // Sirene: Ton an- und wieder ausschalten
+        if (on) sirenStart(); else sirenStop();
         break;
       case 'door': sfxDoor(on); break;
       case 'shutter': sfxRoll(); break;
