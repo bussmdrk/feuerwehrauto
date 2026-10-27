@@ -221,6 +221,35 @@
   /* Der Strahl kommt erst, wenn er am Heck aufgedreht wird */
   .hosewater{opacity:0;transition:opacity .3s}
   #stage.hosewater-on .hosewater{opacity:1}
+
+  /* ---------- Rettung: die Katze im Baum ----------
+     katzesitz  = wo die Katze ist (Baumast oder Korb), wird per JS gesetzt
+     katzehide  = verkrochen, wenn die Wasserdüse laeuft
+     katze-weg  = gerettet und weggelaufen */
+  #katze{transition:transform .9s cubic-bezier(.4,.05,.25,1)}
+  .katzschatten{transition:opacity .4s}
+  #stage.katze-springt .katzschatten, #stage.katze-laeuft .katzschatten{opacity:0}
+  /* Verkrochen: kleiner und hoeher in der Krone, deutlich schmaler */
+  .katzehide{transition:transform .45s cubic-bezier(.4,.05,.25,1), opacity .35s}
+  #stage.katze-versteckt .katzehide{transform:translate(26px,-46px) scale(.62)}
+  /* Im Korb: die Katze sitzt still */
+  #stage.katze-korb #katze{transition:transform .9s cubic-bezier(.4,.05,.25,1)}
+  /* Rausgesprungen: kurzer Hupfer, dann weglaufen */
+  #stage.katze-springt .katzehide{animation:hupfer .7s ease-out}
+  @keyframes hupfer{0%{transform:translate(0,0)}45%{transform:translate(-30px,-70px)}
+                    100%{transform:translate(-70px,0)}}
+  #stage.katze-laeuft .katzehide{animation:weglaufen 1.4s ease-in forwards}
+  @keyframes weglaufen{from{transform:translate(-70px,0)}to{transform:translate(-900px,0)}}
+  #stage.katze-weg #katze{opacity:0;transition:opacity .3s}
+
+  /* Zweite Katze (ueber dem Wagen): nur sichtbar, wenn sie im Korb sitzt */
+  #katze2{opacity:0;transition:opacity .2s}
+  #stage.katze-korb #katze2{opacity:1}
+  /* Die Katze in der Landschaft verschwindet, sobald sie im Korb ist */
+  #stage.katze-korb #katze{opacity:0}
+  /* Tippbereich der Katze: nur waehrend der Rettung aktiv */
+  #katzehit{pointer-events:none}
+  #stage.katze-wartet #katzehit{pointer-events:all}
 </style>
 </head>
 <body>
@@ -578,6 +607,61 @@
         </g>
       </g>
 
+      <!-- ===== Rettungsstelle: grosser Baum mit einer Katze in der Krone =====
+           Der Baum steht hinter dem Hochhaus. Seine Krone ragt bis auf die Hoehe
+           des Personenkorbes, damit die Drehleiter hinaufreicht.
+           Das Baumgruen kommt ZUERST, die Katze danach, sonst verdeckt das
+           Laub die Katze. -->
+      <g id="rettung" transform="translate(4620,520)">
+        <rect x="-40" y="-760" width="80" height="760" rx="14" fill="#7a5230"/>
+        <path d="M40 -600 q70 -36 96 -112" fill="none" stroke="#7a5230" stroke-width="22" stroke-linecap="round"/>
+        <rect x="-52" y="-72" width="104" height="48" rx="12" fill="#6b4a2a" opacity=".45"/>
+        <g fill="#2f7a4a">
+          <circle cx="190" cy="-1010" r="330"/>
+          <circle cx="150" cy="-1280" r="215"/>
+          <circle cx="-130" cy="-950" r="195"/>
+          <circle cx="490" cy="-950" r="195"/>
+          <circle cx="-50" cy="-790" r="180"/>
+          <circle cx="410" cy="-790" r="180"/>
+        </g>
+        <g fill="#358a54" opacity=".72">
+          <circle cx="60" cy="-1160" r="160"/>
+          <circle cx="340" cy="-1110" r="150"/>
+          <circle cx="-100" cy="-870" r="115"/>
+          <circle cx="470" cy="-870" r="115"/>
+        </g>
+        <path d="M40 -1046 q150 -4 290 -30" fill="none" stroke="#6b4a2a" stroke-width="26" stroke-linecap="round"/>
+      </g>
+
+      <!-- ===== Die Katze: sitzt in der Krone und muss gerettet werden =====
+           katzesitz = wo sie ist (Baum, Korb, unterwegs, Boden)
+           katzehide = ob sie sich verkrochen hat (Wasserdüse eingeschaltet) -->
+      <g id="katze" transform="translate(4890,-540)">
+        <g class="katzesitz">
+          <g class="katzehide">
+            <ellipse class="katzschatten" cx="0" cy="-4" rx="30" ry="8" fill="#000" opacity=".18"/>
+            <path d="M26 -30 q40 10 32 -42" fill="none" stroke="#e0873c" stroke-width="16" stroke-linecap="round"/>
+            <ellipse cx="0" cy="-34" rx="32" ry="38" fill="#f0a860"/>
+            <ellipse cx="12" cy="-34" rx="16" ry="34" fill="#f7c08a" opacity=".55"/>
+            <circle cx="-14" cy="-4" r="11" fill="#f7c08a"/>
+            <circle cx="14" cy="-4" r="11" fill="#f7c08a"/>
+            <polygon points="-26,-84 -16,-122 -2,-86" fill="#f0a860"/>
+            <polygon points="26,-84 16,-122 2,-86" fill="#f0a860"/>
+            <polygon points="-19,-90 -14,-108 -8,-90" fill="#e8949a"/>
+            <polygon points="19,-90 14,-108 8,-90" fill="#e8949a"/>
+            <circle cx="0" cy="-72" r="27" fill="#f7c08a"/>
+            <circle cx="-10" cy="-75" r="5.5" fill="#2b3238"/>
+            <circle cx="10" cy="-75" r="5.5" fill="#2b3238"/>
+            <circle cx="-11.5" cy="-77" r="1.8" fill="#fff"/>
+            <circle cx="8.5" cy="-77" r="1.8" fill="#fff"/>
+            <polygon points="0,-63 -5,-58 5,-58" fill="#e8949a"/>
+            <path d="M-4 -56 q4 5 8 0" fill="none" stroke="#c98d6b" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M-8 -60 l-22 -6 M-8 -56 l-22 4" stroke="#fff" stroke-width="2" opacity=".85" stroke-linecap="round"/>
+            <path d="M8 -60 l22 -6 M8 -56 l22 4" stroke="#fff" stroke-width="2" opacity=".85" stroke-linecap="round"/>
+          </g>
+        </g>
+      </g>
+
       <!-- ===== Brand B: das Hochhaus weiter vorn ===== -->
       <g id="fireB" transform="translate(4340,520)">
         <!-- Brand im Obergeschoss -->
@@ -906,24 +990,26 @@
           <g transform="translate(470,-6)">
             <g class="basket">
               <!-- Korbgeruest -->
-              <rect x="-76" y="-104" width="152" height="12" rx="5" fill="#2b3238"/>
-              <rect x="-72" y="-12" width="144" height="14" rx="4" fill="#3a424a"/>
-              <rect x="-72" y="-8" width="144" height="5" fill="#6f7982"/>
+              <rect x="-140" y="-104" width="280" height="12" rx="5" fill="#2b3238"/>
+              <rect id="korbboden" x="-136" y="-12" width="272" height="14" rx="4" fill="#3a424a"/>
+              <rect x="-136" y="-8" width="272" height="5" fill="#6f7982"/>
               <g fill="#2b3238">
-                <rect x="-74" y="-104" width="8" height="98"/><rect x="-46" y="-104" width="7" height="98"/>
-                <rect x="-18" y="-104" width="7" height="98"/><rect x="10" y="-104" width="7" height="98"/>
-                <rect x="38" y="-104" width="7" height="98"/><rect x="66" y="-104" width="8" height="98"/>
+                <rect x="-138" y="-104" width="8" height="98"/><rect x="-102" y="-104" width="7" height="98"/>
+                <rect x="-66" y="-104" width="7" height="98"/><rect x="-30" y="-104" width="7" height="98"/>
+                <rect x="6" y="-104" width="7" height="98"/><rect x="42" y="-104" width="7" height="98"/>
+                <rect x="78" y="-104" width="7" height="98"/><rect x="114" y="-104" width="7" height="98"/>
+                <rect x="130" y="-104" width="8" height="98"/>
               </g>
               <g fill="#2b3238" opacity=".9">
-                <rect x="-72" y="-78" width="144" height="6"/><rect x="-72" y="-50" width="144" height="6"/>
-                <rect x="-72" y="-24" width="144" height="6"/>
+                <rect x="-136" y="-78" width="272" height="6"/><rect x="-136" y="-50" width="272" height="6"/>
+                <rect x="-136" y="-24" width="272" height="6"/>
               </g>
-              <rect x="-82" y="-112" width="164" height="10" rx="5" fill="#1f262c"/>
+              <rect x="-146" y="-112" width="292" height="10" rx="5" fill="#1f262c"/>
               <!-- Warnleuchte -->
-              <rect x="66" y="-132" width="18" height="16" rx="5" fill="#c11219"/>
-              <circle cx="75" cy="-124" r="10" fill="#ff6a6a" opacity=".45"/>
+              <rect x="124" y="-132" width="18" height="16" rx="5" fill="#c11219"/>
+              <circle cx="133" cy="-124" r="10" fill="#ff6a6a" opacity=".45"/>
               <!-- Feuerwehrmann im Korb -->
-    <g class="fig basketfig" transform="translate(-18,-14)">
+    <g class="fig basketfig" transform="translate(-78,-14)">
       <rect x="-21" y="-76" width="17" height="66" rx="8" fill="#1f3a63" stroke="#16294a" stroke-width="2"/>
       <rect x="4" y="-76" width="17" height="66" rx="8" fill="#1f3a63" stroke="#16294a" stroke-width="2"/>
       <rect x="-24" y="-14" width="23" height="16" rx="6" fill="#22262a"/>
@@ -948,16 +1034,16 @@
       <g transform="translate(27,-122) rotate(38)"><g class="arm">
         <rect x="-8" y="-58" width="16" height="58" rx="8" fill="#22406b"/>
         <circle cx="0" cy="-62" r="10" fill="#f0c39a"/></g></g>
-      <rect data-toggle="figure" data-hint x="-62" y="-202" width="124" height="214" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+      <rect data-toggle="figure" data-hint x="-74" y="-208" width="152" height="250" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     </g>
               <!-- Wasserkanone am Korb -->
-              <g transform="translate(78,-64)">
+              <g transform="translate(112,-64)">
                 <rect x="-10" y="-12" width="30" height="24" rx="8" fill="#39424a"/>
                 <rect x="16" y="-8" width="34" height="16" rx="6" fill="url(#chromeG)" stroke="#8d99a4" stroke-width="2"/>
               </g>
               <!-- Wasserstrahl: zeigt vom Korb schraeg nach unten ins Brandgeschoss -->
               <g class="water">
-                <g class="jetgrp" transform="translate(118,-62) rotate(29)">
+                <g class="jetgrp" transform="translate(134,-62) rotate(29)">
                   <g class="jetline" style="transform-origin:0 0">
                     <path d="M0 0 C164 7 328 -2 493 -6" fill="none" stroke="#7cc7ef" stroke-width="34" stroke-linecap="round" opacity=".35"/>
                     <path d="M0 0 C164 7 328 -2 493 -6" fill="none" stroke="#a9dcf7" stroke-width="23" stroke-linecap="round" opacity=".6"/>
@@ -985,7 +1071,10 @@
                 </g>
               </g>
               <g class="waterzone">
-                <rect data-toggle="water" data-hint x="20" y="-108" width="150" height="94" fill="#000" fill-opacity="0"/>
+                <!-- Duesse: liegt im rechten Korbteil neben der Katze. Beide
+                     brauchen getrennte Tippflaechen, deshalb beginnt die Zone
+                     erst rechts neben der Katze. -->
+                <rect data-toggle="water" data-hint x="78" y="-130" width="360" height="200" fill="#000" fill-opacity="0"/>
               </g>
             </g>
           </g>
@@ -1075,7 +1164,7 @@
         <circle cx="0" cy="-36" r="11" fill="#f0c39a"/>
         <rect x="-4" y="-46" width="8" height="12" rx="3" fill="#f0c39a" opacity=".8"/></g></g>
       </g>
-      <rect data-toggle="figure" data-hint x="-62" y="-202" width="124" height="214" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+      <rect data-toggle="figure" data-hint x="-74" y="-208" width="152" height="250" fill="#000" fill-opacity="0" style="pointer-events:all"/>
     </g>
 
     <!-- Schriftzug, damit er lesbar bleibt.
@@ -1083,15 +1172,15 @@
     <text x="120" y="445" font-size="15" font-weight="700" fill="#7a4a00" font-family="inherit" letter-spacing="2">FEUERWEHR</text>
 
     <!-- Tippflächen -->
-    <rect data-toggle="door" data-hint x="668" y="296" width="156" height="184" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="shutter" data-hint x="88" y="316" width="288" height="112" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="shutter" x="376" y="316" width="288" height="112" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="headlights" data-hint x="862" y="372" width="100" height="112" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="siren" data-hint x="668" y="150" width="108" height="146" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="lights" data-hint x="778" y="150" width="138" height="148" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="drive" data-hint x="182" y="398" width="132" height="126" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="drive" x="296" y="398" width="132" height="126" fill="#000" fill-opacity="0" style="pointer-events:all"/>
-    <rect data-toggle="drive" x="742" y="398" width="132" height="126" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="door" data-hint x="644" y="276" width="180" height="224" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="shutter" data-hint x="72" y="300" width="300" height="150" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="shutter" x="374" y="300" width="300" height="150" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="headlights" data-hint x="852" y="300" width="126" height="260" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="siren" data-hint x="648" y="112" width="150" height="220" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="lights" data-hint x="790" y="112" width="160" height="220" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="drive" data-hint x="170" y="380" width="152" height="180" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="drive" x="292" y="380" width="142" height="180" fill="#000" fill-opacity="0" style="pointer-events:all"/>
+    <rect data-toggle="drive" x="736" y="380" width="142" height="180" fill="#000" fill-opacity="0" style="pointer-events:all"/>
   </g>
 
   <!-- Tippbereich fuer den Schlauchstrahl am Heck (nur bei Schlauch in der Hand) -->
@@ -1099,6 +1188,41 @@
     <rect data-toggle="hosewater" x="-458" y="196" width="416" height="348" fill="#000" fill-opacity="0"/>
     <!-- kleine Flaeche genau an der Duese: hier sitzt der Hinweisring -->
     <rect data-toggle="hosewater" data-hint x="-112" y="372" width="94" height="76" fill="#000" fill-opacity="0"/>
+  </g>
+  <!-- Zweite Katze: dieselbe Zeichnung, aber ueber dem Wagen.
+       Der Korb verdeckt die Katze in der Landschaft, deshalb liegt diese
+       Kopie davor. Sie erscheint nur, wenn die Katze im Korb sitzt. -->
+  <g id="katze2" transform="translate(0,0)">
+        <g class="katzesitz">
+          <g class="katzehide">
+            <ellipse class="katzschatten" cx="0" cy="-4" rx="30" ry="8" fill="#000" opacity=".18"/>
+            <path d="M26 -30 q40 10 32 -42" fill="none" stroke="#e0873c" stroke-width="16" stroke-linecap="round"/>
+            <ellipse cx="0" cy="-34" rx="32" ry="38" fill="#f0a860"/>
+            <ellipse cx="12" cy="-34" rx="16" ry="34" fill="#f7c08a" opacity=".55"/>
+            <circle cx="-14" cy="-4" r="11" fill="#f7c08a"/>
+            <circle cx="14" cy="-4" r="11" fill="#f7c08a"/>
+            <polygon points="-26,-84 -16,-122 -2,-86" fill="#f0a860"/>
+            <polygon points="26,-84 16,-122 2,-86" fill="#f0a860"/>
+            <polygon points="-19,-90 -14,-108 -8,-90" fill="#e8949a"/>
+            <polygon points="19,-90 14,-108 8,-90" fill="#e8949a"/>
+            <circle cx="0" cy="-72" r="27" fill="#f7c08a"/>
+            <circle cx="-10" cy="-75" r="5.5" fill="#2b3238"/>
+            <circle cx="10" cy="-75" r="5.5" fill="#2b3238"/>
+            <circle cx="-11.5" cy="-77" r="1.8" fill="#fff"/>
+            <circle cx="8.5" cy="-77" r="1.8" fill="#fff"/>
+            <polygon points="0,-63 -5,-58 5,-58" fill="#e8949a"/>
+            <path d="M-4 -56 q4 5 8 0" fill="none" stroke="#c98d6b" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M-8 -60 l-22 -6 M-8 -56 l-22 4" stroke="#fff" stroke-width="2" opacity=".85" stroke-linecap="round"/>
+            <path d="M8 -60 l22 -6 M8 -56 l22 4" stroke="#fff" stroke-width="2" opacity=".85" stroke-linecap="round"/>
+          </g>
+        </g>
+  </g>
+
+  <!-- Tippbereich fuer die Katze: liegt ueber dem Wagen, weil der Korb
+       (mit seiner Wasserzone) die Katze sonst verdeckt. Nur waehrend der
+       Rettung tippbar. Die Lage setzt das Skript (katzeVerschieben). -->
+  <g id="katzehit">
+    <rect data-toggle="katze" data-hint x="-66" y="-165" width="110" height="186" fill="#000" fill-opacity="0"/>
   </g>
   <g id="hints"></g>
   <g id="warn"></g>
@@ -1123,26 +1247,121 @@
 
   /* ================= ANSICHT (jeder Bildschirm wird ausgefüllt) ================= */
   var GROUND = 520, TRUCK_CX = 509;
-  function fit(){
+  /* ---- Kindgerechte Tippflaechen ----
+     Die Tippflaechen liegen in Nutzerkoordinaten. Wie gross sie auf dem
+     Bildschirm ankommen, haengt am Bildausschnitt: im Hochformat schrumpft
+     eine 150-Einheiten-Flaeche auf unter 30 px und ist dann kaum zu treffen.
+     Deshalb merken wir uns die gezeichneten Masse und blasen jede Tippflaeche
+     nach jedem Bildausschnitt so auf, dass sie mindestens TIPP_MIN Pixel in
+     beiden Richtungen misst - der Mittelpunkt bleibt, wo er war. Nur
+     vergroessern, nie verkleinern, damit nichts wandert.
+     Der Massstab wird aus der Matrix geholt (Wurzel der Determinante), damit
+     es auch fuer gedrehte Flaechen im Korb stimmt. */
+  var TIPP_MIN = 46, TIPP = [];
+  function tippSammeln(){
+    TIPP = [];
+    TIPP = [];
+    [].forEach.call(document.querySelectorAll('rect[data-toggle], g[data-toggle]'), function(el){
+      if (el.tagName !== 'rect'){ TIPP.push({ el: el, f: 1, x: 0, y: 0, w: 0, h: 0 }); return; }
+      TIPP.push({ el: el, f: 1,
+        x: parseFloat(el.getAttribute('x')) || 0,
+        y: parseFloat(el.getAttribute('y')) || 0,
+        w: parseFloat(el.getAttribute('width')) || 0,
+        h: parseFloat(el.getAttribute('height')) || 0 });
+    });
+  }
+  function tippSetzen(t, f){
+    var w = t.w * f, h = t.h * f;
+    t.el.setAttribute('x', (t.x - (w - t.w) / 2).toFixed(1));
+    t.el.setAttribute('y', (t.y - (h - t.h) / 2).toFixed(1));
+    t.el.setAttribute('width', w.toFixed(1));
+    t.el.setAttribute('height', h.toFixed(1));
+  }
+
+  function tippGroessen(){
+    TIPP.forEach(function(t){
+      var el = t.el;
+      if (el.tagName !== 'rect') return;      // nur Rechtecke lassen sich aufblasen
+      if (!t.w || !t.h) return;
+      /* inaktive Flaechen (z. B. Wasserzone ohne ausgefahrene Leiter)
+         bleiben in ihrer gezeichneten Groesse */
+      if (window.getComputedStyle(el).pointerEvents === 'none'){ tippSetzen(t, 1); t.f = 1; return; }
+      /* Gemessene Groesse auf dem Bildschirm: gilt auch fuer Flaechen im
+         gedrehten Korb, wo eine Rechnung ueber den Massstab daneben liegt.
+         Aufblasen um f vergroessert die Bildschirmbox ebenfalls um f
+         (lineare Abbildung), ein Durchgang genuegt also. */
+      tippSetzen(t, 1);
+      var b = el.getBoundingClientRect();
+      if (!b.width || !b.height) return;
+      var f = Math.min(2.5, Math.max(1, TIPP_MIN / Math.min(b.width, b.height)));
+      t.f = f > 1.002 ? f : 1;
+      if (f > 1.002) tippSetzen(t, f);
+    });
+  }
+
+  /* Ein Bildausschnitt: alles zwischen x0..x1 / y0..y1 ist zu sehen, der
+     Boden bleibt bei 84 % der Hoehe. Der Massstab haengt nur an der Breite. */
+  function rahmen(x0, x1, y0, y1, mittig){
     var w0 = window.innerWidth, h0 = window.innerHeight;
     if (!w0 || !h0) return;
     var ar = Math.max(0.25, w0 / h0);
-    var w, h, vy, vx;
-    // Inhalt = Fahrzeug + Leiter samt Korb + Wasserstrahl + Figuren
-    var x0, x1, y0, y1;
-    if (h0 >= w0){
-      x0 = -620; x1 = 1290; y0 = -560; y1 = 660;   // links Platz fuer Duese, Strahl und Feuerwehrhaus
-    } else {
-      x0 = -650; x1 = 1420; y0 = -300; y1 = 660;   // links Platz fuer Duesse, Strahl und Feuerwehrhaus
-    }
-    w = Math.max(x1 - x0, (y1 - y0) * ar);
-    h = w / ar;
+    var w = Math.max(x1 - x0, (y1 - y0) * ar), h = w / ar;
     if (h < y1 - y0){ h = y1 - y0; w = h * ar; }   // sehr breite Fenster
-    vx = (x0 + x1) / 2 - w/2;
-    vy = Math.min(GROUND - h * 0.84, y0 - 20);     // Boden bei 84 %, Korb bleibt sichtbar
+    var vx = (x0 + x1) / 2 - w/2;
+    var vy = Math.min(GROUND - h * 0.84, y0 - 20); // Boden bei 84 %
+    if (mittig) vy = (y0 + y1) / 2 - h/2;          // Nahaufnahme mittig
     stage.setAttribute('viewBox', vx.toFixed(1) + ' ' + vy.toFixed(1) + ' ' +
                                    w.toFixed(1) + ' ' + h.toFixed(1));
+    tippGroessen();
   }
+
+  /* Kamera: bei der Katzenrettung wird herangezoomt. Der Massstab waechst
+     dadurch so weit, dass Katze und Wasserduese zwei getrennte, kindgerecht
+     grosse Tippflaechen bekommen. */
+  /* ---- Nahaufnahme bei der Katzenrettung ----
+     Gemessen statt geschaetzt: der Rahmen wird aus den tatsaechlichen
+     Positionen von Korb und Katze berechnet. So sitzt er unabhaengig von
+     Fenstergroesse und Ausfahrzustand immer richtig. */
+  var rettZoom = false, rettRahmen = null;
+
+  function nahAufnahme(){
+    if (!rettZoom) return;
+    var inv = stage.getScreenCTM().inverse();
+    var punkte = [];
+    ['#korbboden', '#katze2', '.basketfig', '.waterzone rect'].forEach(function(sel){
+      var el = document.querySelector(sel);
+      if (!el) return;
+      var b = el.getBoundingClientRect();
+      if (!b.width && !b.height) return;
+      var p = stage.createSVGPoint();
+      [[b.x, b.y], [b.x + b.width, b.y + b.height]].forEach(function(pt){
+        p.x = pt[0]; p.y = pt[1];
+        var q = p.matrixTransform(inv);
+        punkte.push([q.x, q.y]);
+      });
+    });
+    if (!punkte.length) return;
+    var xs = punkte.map(function(q){ return q[0]; });
+    var ys = punkte.map(function(q){ return q[1]; });
+    var r = 70;      // Rand, damit nichts am Bildschirmrand klebt
+    rettRahmen = [Math.min.apply(null, xs) - r, Math.max.apply(null, xs) + r,
+                  Math.min.apply(null, ys) - r, Math.max.apply(null, ys) + r];
+    fit();
+  }
+
+  function fit(){
+    // Erst nach dem Ausfahren der Leiter ist die Nahaufnahme sinnvoll.
+    if (rettZoom && rettRahmen){ rahmen(rettRahmen[0], rettRahmen[1], rettRahmen[2], rettRahmen[3], true); return; }
+    if (window.innerHeight >= window.innerWidth){
+      rahmen(-620, 1290, -560, 660);   // links Platz fuer Duese, Strahl und Feuerwehrhaus
+    } else {
+      // Querformat: der ausgefahrene Korb liegt bei y ~ -520, die Baumkrone
+      // reicht noch hoeher. y0 muss beides fassen, sonst schneidet der
+      // Bildausschnitt den Korb ab.
+      rahmen(-650, 1420, -700, 660);
+    }
+  }
+  tippSammeln();
   fit();
   window.addEventListener('resize', function(){ fit(); if (hints.childNodes.length) renderHints(); });
   window.addEventListener('orientationchange', function(){ setTimeout(fit, 250); });
@@ -1363,10 +1582,10 @@
   /* ================= SCHALTEN ================= */
   var state = { ladder:false, lights:false, siren:false, door:false,
                 shutter:false, headlights:false, drive:false, water:false, figure:false,
-                hosewater:false };
+                hosewater:false, katze:false };
   var cls = { ladder:'ladder-out', lights:'lights-on', siren:'siren-on', door:'door-open',
               shutter:'shutter-open', headlights:'headlight-on', drive:'driving', water:'water-on',
-              figure:'figure-on', hosewater:'hosewater-on' };
+              figure:'figure-on', hosewater:'hosewater-on', katze:'katze-korb' };
 
   /* ---------- Fahrt: Landschaft zieht vorbei ----------
      Eine Zykluslaenge sind 8000 Einheiten. Der Wagen faehrt hin, dreht am
@@ -1431,7 +1650,7 @@
      Zwei Brandstellen auf der Strecke. Der Wagen haelt dort an.
      Geloescht wird nur mit dem richtigen Mittel: die Tanne mit dem Schlauch
      vom Heck, das Hochhaus mit der Leiter von oben. Erst danach geht es weiter. */
-  var FIRE_A = 2100, FIRE_B = 4340;
+  var FIRE_A = 2100, FIRE_B = 4340, RETT_X = 4620;
   var BRAND = {
     A: { stopAt: -(FIRE_A + 300), hint: 'Schlauch',
          extinguish: function(){ return state.figure && state.shutter && state.hosewater; } },
@@ -1444,6 +1663,24 @@
   var firesOut = { A:false, B:false };
   var arrived = false;         // steht der Wagen an einer Brandstelle?
 
+  /* ---------- Rettung: die Katze im Baum hinter dem Hochhaus ----------
+     Ablauf: Wagen haelt vor dem Baum, Leiter ausfahren, Katze antippen
+     (springt in den Korb), Leiter einfahren (Korb kommt herunter), dann
+     springt die Katze aus dem Korb auf die Strasse und laeuft weg.
+     Wird die Wasserdüse eingeschaltet, verkriecht sie sich in der Krone. */
+  var RETT_Y = -540;           // Hoehe der Katze im Baum (Landschaft)
+  var AST_X = 4890;            // wo sie auf dem Ast sitzt (etwas neben dem Korb)
+  var rettung = {
+    /* Der Korb liegt in Nutzerkoordinaten immer bei x=554 (der Wagen steht still).
+       Die Katze liegt bei RETT_X+150 = 4770 + Versatz. Damit der Korb genau
+       unter der Katze steht, muss der Versatz -4216 betragen. */
+    stopAt: -4300,
+    phase: 'none',             // none | warte | imkorb | unten | weg
+    katzeImKorb: false,
+    timers: []
+  };
+  var rettDone = false;        // Katze gerettet?
+
   function fireOpen(k){ return !firesOut[k]; }
 
   /* Wird in diesem Bild eine Brandstelle ueberfahren? Dann dort exakt halten. */
@@ -1452,6 +1689,11 @@
       if (!fireOpen(k)) continue;
       var z = BRAND[k].stopAt;
       if (vorher > z && nachher <= z) return z;
+    }
+    // Rettungsstelle: dieselbe Pruefung
+    if (!rettDone){
+      var z2 = rettung.stopAt;
+      if (vorher > z2 && nachher <= z2) return z2;
     }
     return null;
   }
@@ -1480,6 +1722,13 @@
     for (var k in BRAND){
       if (fireOpen(k) && Math.abs(BRAND[k].stopAt - z) < 1){ currentFire = k; break; }
     }
+    // Rettungsstelle erreicht?
+    if (!currentFire && !rettDone && Math.abs(rettung.stopAt - z) < 1){
+      rettung.phase = 'warte';
+      stage.classList.add('katze-wartet');
+      katzeVerschieben();
+      tippGroessen();
+    }
     arrived = true;
     state.drive = false;
     stage.classList.remove('driving');
@@ -1487,14 +1736,111 @@
     landStop();
     if (AC){ beep(880, 0.12, 0.06); setTimeout(function(){ beep(660, 0.16, 0.05); }, 150); }
     fireHint(currentFire);
+    if (!currentFire) katzeHinweis();
+  }
+
+  /* Hinweisring auf der Katze, solange sie noch gerettet werden muss */
+  function katzeHinweis(){
+    var w = document.getElementById('warn');
+    while (w.firstChild) w.removeChild(w.firstChild);
+    if (rettDone || rettung.phase !== 'warte'){ w.style.opacity = '0'; return; }
+    var el = document.querySelector('#katze [data-toggle="katze"]');
+    if (!el) return;
+    var r = el.getBoundingClientRect();
+    if (r.width < 4) return;
+    var q = toSvg(r.x + r.width / 2, r.y + r.height / 2);
+    var c = document.createElementNS(SVGNS, 'circle');
+    c.setAttribute('class', 'firehint');
+    c.setAttribute('cx', q.x); c.setAttribute('cy', q.y); c.setAttribute('r', 70);
+    w.appendChild(c);
+    w.style.opacity = '1';
+    clearTimeout(warn._t);
+    warn._t = setTimeout(function(){ w.style.opacity = '0'; }, 2800);
   }
 
   /* Neue Runde: an beiden Stellen brennt es wieder */
   function newLap(){
     firesOut.A = false; firesOut.B = false;
     currentFire = null; arrived = false;
+    rettZoom = false; rettRahmen = null; fit();   // normale Ansicht
+    // Katze sitzt wieder im Baum und muss erneut gerettet werden
+    rettDone = false;
+    rettung.phase = 'none'; rettung.katzeImKorb = false;
+    rettung.timers.forEach(clearTimeout); rettung.timers = [];
+    stage.classList.remove('katze-korb', 'katze-springt', 'katze-laeuft', 'katze-weg', 'katze-versteckt');
+    document.getElementById('katze').setAttribute('transform', 'translate(' + (RETT_X + 150) + ',' + RETT_Y + ')');
+    document.getElementById('katze').style.opacity = '';
     stage.classList.remove('fireA-out', 'fireB-out');
     fireHint(null);
+  }
+
+  /* ---------- Rettung: die einzelnen Schritte ---------- */
+  /* Katze springt in den Korb (Leiter muss ausgefahren sein) */
+  function katzeInKorb(){
+    if (rettDone || rettung.katzeImKorb) return;
+    if (!state.ladder){ beepNope(); warn(['ladder']); katzeHinweis(); return; }
+    rettung.katzeImKorb = true;
+    rettung.phase = 'imkorb';
+    stage.classList.remove('katze-wartet');
+    stage.classList.add('katze-korb');
+    katzeVerschieben();
+    tippGroessen();
+    rettung.timers.push(setTimeout(nahAufnahme, 1000));   // Katze sitzt jetzt anders
+    if (AC){ beep(1100, 0.09, 0.055); setTimeout(function(){ beep(1500, 0.11, 0.05); }, 130); }
+    katzeHinweis();
+  }
+
+  /* Katze an die richtige Stelle setzen (Baum oder Korb) */
+  /* Setzt die Katze: im Baum (Landschaftskoordinaten) oder auf den Korb.
+     Zwei Zeichnungen teilen sich diese Position:
+       #katze  liegt in der Landschaft (hinter dem Wagen)
+       #katze2 liegt vor dem Wagen (nur im Korb sichtbar, sonst verdeckt)
+     #katzehit ist die Tippflaeche in Nutzerkoordinaten. */
+  function katzeVerschieben(){
+    var el  = document.getElementById('katze');
+    var k2  = document.getElementById('katze2');
+    var hit = document.getElementById('katzehit');
+    var lx, ly, ux, uy;
+
+    // Die Katze sitzt in der Landschaft immer auf AST_X. Der Korb steht bei
+    // ausgefahrener Leiter in Nutzerkoordinaten fest (Boden bei x 482..626,
+    // rund y -524) - unabhaengig von der Fenstergroesse. Deshalb sind das
+    // feste Werte und keine Messung: zum Haltezeitpunkt ist die Leiter noch
+    // eingefahren, eine Messung waere dort falsch.
+    lx = AST_X; ly = RETT_Y;                 // Ast in der Baumkrone
+    ux = lx + landRead();                    // gleiche Stelle als Nutzerkoordinate
+    uy = ly;
+    if (rettung.katzeImKorb){
+      // Im Korb sitzt die Katze rechts neben dem Mann und links von der
+      // Wasserduese - so liegen alle drei Tippflaechen getrennt.
+      uy = -516;
+      ux = ux + 26;
+    }
+
+    el.setAttribute('transform', 'translate(' + lx.toFixed(1) + ',' + ly.toFixed(1) + ')');
+    if (k2) k2.setAttribute('transform', 'translate(' + ux.toFixed(1) + ',' + uy.toFixed(1) + ')');
+    if (hit) hit.setAttribute('transform', 'translate(' + ux.toFixed(1) + ',' + uy.toFixed(1) + ')');
+  }
+
+  /* Leiter eingefahren und Katze im Korb: sie springt auf die Strasse und laeuft weg */
+  function katzeSpringtRaus(){
+    if (!rettung.katzeImKorb || rettDone) return;
+    stage.classList.remove('katze-korb');
+    var k2 = document.getElementById('katze2');
+    if (k2) k2.setAttribute('transform', document.getElementById('katze').getAttribute('transform'));
+    stage.classList.add('katze-springt');
+    rettung.phase = 'unten';
+    rettung.timers.push(setTimeout(function(){
+      stage.classList.add('katze-laeuft');
+      rettung.phase = 'weg';
+      if (AC){ beep(1300, 0.08, 0.05); setTimeout(function(){ beep(900, 0.1, 0.045); }, 120); }
+      rettung.timers.push(setTimeout(function(){
+        rettDone = true;
+        stage.classList.remove('katze-springt', 'katze-laeuft');
+        stage.classList.add('katze-weg');
+        rettung.phase = 'weg';
+      }, 2600));
+    }, 700));
   }
 
   /* Ist das Feuer jetzt geloescht? */
@@ -1588,6 +1934,13 @@
         fireHint(currentFire);
         return;
       }
+      // An der Rettungsstelle: erst wenn die Katze gerettet ist
+      if (arrived && !currentFire && !rettDone && rettung.phase !== 'none'){
+        state.drive = false;
+        beepNope();
+        katzeHinweis();
+        return;
+      }
       if (blockers().length){
         state.drive = false;
         nope();
@@ -1596,12 +1949,27 @@
       }
       clearWarn();                                   // freie Fahrt
     }
-    stage.classList.toggle(cls[key], on);
+    if (key !== 'katze') stage.classList.toggle(cls[key], on);
+    tippGroessen();          // Tippbarkeit hat sich geaendert: neu einpassen
     switch (key){
       case 'ladder':
         sfxWhirr();
+        if (on && !rettDone && rettung.phase === 'warte'){
+          // Leiter faehrt zur Katze aus: nach der Bewegung heranzoomen
+          rettung.timers.push(setTimeout(function(){
+            rettZoom = true; nahAufnahme();
+          }, 1650));
+        }
+        if (!on){                                      // eingefahren: normale Ansicht
+          rettZoom = false; rettRahmen = null; fit();
+        }
         if (!on && state.water){                       // Leiter eingefahren = Wasser aus
           state.water = false; stage.classList.remove('water-on'); waterStop();
+          stage.classList.remove('katze-versteckt');   // Wasser aus: Katze kommt hervor
+        }
+        // Leiter eingefahren und Katze im Korb: sie springt heraus und laeuft weg
+        if (!on && rettung.katzeImKorb && !rettDone){
+          rettung.timers.push(setTimeout(katzeSpringtRaus, 1500));
         }
         break;
       case 'lights': beep(on ? 1180 : 640, 0.08, 0.05); break;
@@ -1630,11 +1998,25 @@
           if (!state.ladder){                          // ohne ausgefahrene Leiter geht das nicht
             state.ladder = true; stage.classList.add('ladder-out'); sfxWhirr();
           }
-        } else waterStop();
+          // Die Katze erschrickt vor dem Wasser und verkriecht sich
+          if (!rettDone && !rettung.katzeImKorb && rettung.phase !== 'none'){
+            stage.classList.add('katze-versteckt');
+            stage.classList.remove('katze-wartet');
+          }
+        } else {
+          waterStop();
+          // Wasser aus: die Katze kommt wieder hervor
+          stage.classList.remove('katze-versteckt');
+          if (!rettDone && !rettung.katzeImKorb && rettung.phase === 'warte'){
+            stage.classList.add('katze-wartet');
+            katzeVerschieben();
+          }
+        }
         break;
       case 'hosewater':
         if (on) hoseSprayStart(); else hoseSprayStop();
         break;
+      case 'katze': katzeInKorb(); break;
     }
     // Waehrend der Fahrt: sobald eine Bedingung verletzt wird, haelt der Wagen an
     if (state.drive && blockers().length){
@@ -1647,8 +2029,47 @@
     }
     syncHose();
     checkExtinguish();
+    // Leiter ausgefahren + Katze wartet: die Katze sitzt im Korb bereit
+    if (rettung.phase === 'warte' && rettung.katzeImKorb) katzeVerschieben();
   }
 
+  /* Welche Tippflaeche ist gemeint?
+     Die Tippflaechen werden vergroessert, damit sie auch auf kleinen
+     Bildschirmen gut zu treffen sind - dadurch koennen sie einander
+     ueberlappen (z. B. die aufgeblasene Leiterflaeche und die Rollaeden
+     darunter). Deshalb entscheidet nicht die Zeichenreihenfolge, sondern
+     wie gut der Finger zur URSPRUENGLICH gezeichneten Flaeche passt.
+     Mass dafuer ist der Abstand zur Originalmitte, geteilt durch die
+     kleinere Originalkante: genau dort ist die Flaeche am "eigensten".
+     So gewinnt bei einem Tipp auf die Leiter die Leiter, bei einem Tipp
+     auf den Rolladen der Rolladen - ohne feste Rangliste. */
+  function bestTarget(cx, cy){
+    var liste = [];
+    [].forEach.call(document.querySelectorAll('rect[data-toggle]'), function(el){
+      if (getComputedStyle(el).pointerEvents === 'none') return;
+      var r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) return;
+      if (cx < r.x || cx > r.x + r.width || cy < r.y || cy > r.y + r.height) return;
+      var t = null;
+      for (var i = 0; i < TIPP.length; i++) if (TIPP[i].el === el){ t = TIPP[i]; break; }
+      var f = t ? t.f : 1;
+      var ow = r.width / f, oh = r.height / f;          // Originalgroesse
+      var d = Math.hypot(cx - (r.x + r.width/2), cy - (r.y + r.height/2));
+      liste.push({ el: el, s: d / Math.max(1, Math.min(ow, oh)) });
+    });
+    /* Zusaetzlich nicht-Rechteck-Ziele (z. B. die Katze) mitzaehlen */
+    [].forEach.call(document.querySelectorAll('g[data-toggle]'), function(el){
+      if (getComputedStyle(el).pointerEvents === 'none') return;
+      var r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) return;
+      if (cx < r.x || cx > r.x + r.width || cy < r.y || cy > r.y + r.height) return;
+      var d = Math.hypot(cx - (r.x + r.width/2), cy - (r.y + r.height/2));
+      liste.push({ el: el, s: d / Math.max(1, Math.min(r.width, r.height)) });
+    });
+    if (!liste.length) return null;
+    liste.sort(function(a, b){ return a.s - b.s; });
+    return liste[0].el;
+  }
   function targetOf(node){
     while (node && node !== stage){
       if (node.getAttribute && node.getAttribute('data-toggle')) return node;
@@ -1660,7 +2081,9 @@
     if (e.target === muteBtn) return;
     unlockAudio();
     scheduleIdle();
-    var el = targetOf(e.target);
+    var el = null;
+    if (typeof e.clientX === 'number' && e.clientX !== undefined) el = bestTarget(e.clientX, e.clientY);
+    if (!el) el = targetOf(e.target);
     if (!el) return;
     if (e.cancelable) e.preventDefault();
     toggle(el.getAttribute('data-toggle'));
@@ -1669,8 +2092,9 @@
   else {
     stage.addEventListener('touchstart', function(e){
       var t = e.changedTouches && e.changedTouches[0];
-      onPress({ target: t && document.elementFromPoint(t.clientX, t.clientY), cancelable:true,
-                preventDefault: function(){ e.preventDefault(); } });
+      onPress({ target: t && document.elementFromPoint(t.clientX, t.clientY),
+                clientX: t ? t.clientX : undefined, clientY: t ? t.clientY : undefined,
+                cancelable:true, preventDefault: function(){ e.preventDefault(); } });
     }, { passive:false });
     stage.addEventListener('mousedown', onPress, { passive:false });
   }
