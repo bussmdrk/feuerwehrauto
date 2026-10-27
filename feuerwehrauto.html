@@ -228,25 +228,40 @@
      katze-weg  = gerettet und weggelaufen */
   #katze{transition:transform .9s cubic-bezier(.4,.05,.25,1)}
   .katzschatten{transition:opacity .4s}
-  #stage.katze-springt .katzschatten, #stage.katze-laeuft .katzschatten{opacity:0}
+  #stage.katze-springt #katze2 .katzschatten{opacity:0}
   /* Verkrochen: kleiner und hoeher in der Krone, deutlich schmaler */
   .katzehide{transition:transform .45s cubic-bezier(.4,.05,.25,1), opacity .35s}
   #stage.katze-versteckt .katzehide{transform:translate(26px,-46px) scale(.62)}
   /* Im Korb: die Katze sitzt still */
   #stage.katze-korb #katze{transition:transform .9s cubic-bezier(.4,.05,.25,1)}
-  /* Rausgesprungen: kurzer Hupfer, dann weglaufen */
-  #stage.katze-springt .katzehide{animation:hupfer .7s ease-out}
-  @keyframes hupfer{0%{transform:translate(0,0)}45%{transform:translate(-30px,-70px)}
-                    100%{transform:translate(-70px,0)}}
-  #stage.katze-laeuft .katzehide{animation:weglaufen 1.4s ease-in forwards}
-  @keyframes weglaufen{from{transform:translate(-70px,0)}to{transform:translate(-900px,0)}}
-  #stage.katze-weg #katze{opacity:0;transition:opacity .3s}
+  /* Rausgesprungen: aus dem Korb auf die Strasse fallen, dann weglaufen.
+     Die Animation liegt bewusst auf dem INNEREN .katzehide: die aeussere
+     Gruppe traegt die Position als SVG-Attribut, eine CSS-Animation auf
+     transform wuerde die Position ueberschreiben. */
+  /* Korb-Katze steht bei y=-516, die Fusslinie der Zeichnung liegt 4
+     Einheiten darunter, die Strasse bei y=520 -> Versatz 1032. */
+  @keyframes rausspringen{0%{transform:translate(0,0)}
+                          72%{transform:translate(-30px,1032px)}   /* Fuesse auf der Strasse */
+                          86%{transform:translate(-36px,986px)}    /* kleiner Hupfer */
+                          100%{transform:translate(-52px,1032px)}}
+  @keyframes weglaufen{from{transform:translate(-52px,1032px)}
+                       to{transform:translate(1000px,1032px)}}
 
-  /* Zweite Katze (ueber dem Wagen): nur sichtbar, wenn sie im Korb sitzt */
+  /* Zweite Katze (ueber dem Wagen): sitzt im Korb und springt von dort weg */
   #katze2{opacity:0;transition:opacity .2s}
-  #stage.katze-korb #katze2{opacity:1}
-  /* Die Katze in der Landschaft verschwindet, sobald sie im Korb ist */
-  #stage.katze-korb #katze{opacity:0}
+  #stage.katze-korb #katze2,
+  #stage.katze-springt #katze2,
+  #stage.katze-laeuft #katze2{opacity:1}
+  #stage.katze-springt #katze2 .katzehide{animation:rausspringen .9s ease-in forwards}
+  #stage.katze-laeuft #katze2 .katzehide{animation:weglaufen 1.5s ease-in forwards}
+  #stage.katze-weg #katze2{opacity:0;transition:opacity .3s}
+
+  /* Die Katze in der Baumkrone ist ab dem Einsteigen nicht mehr zu sehen:
+     sonst taucht sie waehrend des Sprungs wieder im Baum auf. */
+  #stage.katze-korb #katze,
+  #stage.katze-springt #katze,
+  #stage.katze-laeuft #katze,
+  #stage.katze-weg #katze{opacity:0}
   /* Tippbereich der Katze: nur waehrend der Rettung aktiv */
   #katzehit{pointer-events:none}
   #stage.katze-wartet #katzehit{pointer-events:all}
@@ -1825,9 +1840,9 @@
   /* Leiter eingefahren und Katze im Korb: sie springt auf die Strasse und laeuft weg */
   function katzeSpringtRaus(){
     if (!rettung.katzeImKorb || rettDone) return;
+    /* katze2 bleibt, wo katzeVerschieben sie hingesetzt hat: im Korb.
+       Der Sprung ist reine CSS-Animation auf dem inneren .katzehide. */
     stage.classList.remove('katze-korb');
-    var k2 = document.getElementById('katze2');
-    if (k2) k2.setAttribute('transform', document.getElementById('katze').getAttribute('transform'));
     stage.classList.add('katze-springt');
     rettung.phase = 'unten';
     rettung.timers.push(setTimeout(function(){
@@ -1837,7 +1852,7 @@
       rettung.timers.push(setTimeout(function(){
         rettDone = true;
         stage.classList.remove('katze-springt', 'katze-laeuft');
-        stage.classList.add('katze-weg');
+        stage.classList.add('katze-weg');   // katze2 verblasst, Baumkatze bleibt aus
         rettung.phase = 'weg';
       }, 2600));
     }, 700));
