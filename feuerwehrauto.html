@@ -627,7 +627,7 @@
            des Personenkorbes, damit die Drehleiter hinaufreicht.
            Das Baumgruen kommt ZUERST, die Katze danach, sonst verdeckt das
            Laub die Katze. -->
-      <g id="rettung" transform="translate(4620,520)">
+      <g id="rettung" transform="translate(5925,520)">
         <rect x="-40" y="-760" width="80" height="760" rx="14" fill="#7a5230"/>
         <path d="M40 -600 q70 -36 96 -112" fill="none" stroke="#7a5230" stroke-width="22" stroke-linecap="round"/>
         <rect x="-52" y="-72" width="104" height="48" rx="12" fill="#6b4a2a" opacity=".45"/>
@@ -651,7 +651,7 @@
       <!-- ===== Die Katze: sitzt in der Krone und muss gerettet werden =====
            katzesitz = wo sie ist (Baum, Korb, unterwegs, Boden)
            katzehide = ob sie sich verkrochen hat (Wasserdüse eingeschaltet) -->
-      <g id="katze" transform="translate(4890,-540)">
+      <g id="katze" transform="translate(6195,-540)">
         <g class="katzesitz">
           <g class="katzehide">
             <ellipse class="katzschatten" cx="0" cy="-4" rx="30" ry="8" fill="#000" opacity=".18"/>
@@ -1665,7 +1665,7 @@
      Zwei Brandstellen auf der Strecke. Der Wagen haelt dort an.
      Geloescht wird nur mit dem richtigen Mittel: die Tanne mit dem Schlauch
      vom Heck, das Hochhaus mit der Leiter von oben. Erst danach geht es weiter. */
-  var FIRE_A = 2100, FIRE_B = 4340, RETT_X = 4620;
+  var FIRE_A = 2100, FIRE_B = 4340, RETT_X = 5925;
   var BRAND = {
     A: { stopAt: -(FIRE_A + 300), hint: 'Schlauch',
          extinguish: function(){ return state.figure && state.shutter && state.hosewater; } },
@@ -1684,12 +1684,13 @@
      springt die Katze aus dem Korb auf die Strasse und laeuft weg.
      Wird die Wasserdüse eingeschaltet, verkriecht sie sich in der Krone. */
   var RETT_Y = -540;           // Hoehe der Katze im Baum (Landschaft)
-  var AST_X = 4890;            // wo sie auf dem Ast sitzt (etwas neben dem Korb)
+  var AST_X = 6195;            // wo sie auf dem Ast sitzt (etwas neben dem Korb)
   var rettung = {
-    /* Der Korb liegt in Nutzerkoordinaten immer bei x=554 (der Wagen steht still).
-       Die Katze liegt bei RETT_X+150 = 4770 + Versatz. Damit der Korb genau
-       unter der Katze steht, muss der Versatz -4216 betragen. */
-    stopAt: -4300,
+    /* Der Baum steht bewusst weit HINTER dem Hochhaus (FIRE_B = 4340):
+       erst dort loeschen, dann weiterfahren, dann erst kommt der Baum.
+       Der Korb liegt bei stehendem Wagen in Nutzerkoordinaten fest, die
+       Katze sitzt bei AST_X - der Haltepunkt ist die Differenz daraus. */
+    stopAt: -5605,
     phase: 'none',             // none | warte | imkorb | unten | weg
     katzeImKorb: false,
     timers: []
@@ -1783,7 +1784,7 @@
     rettung.phase = 'none'; rettung.katzeImKorb = false;
     rettung.timers.forEach(clearTimeout); rettung.timers = [];
     stage.classList.remove('katze-korb', 'katze-springt', 'katze-laeuft', 'katze-weg', 'katze-versteckt');
-    document.getElementById('katze').setAttribute('transform', 'translate(' + (RETT_X + 150) + ',' + RETT_Y + ')');
+    document.getElementById('katze').setAttribute('transform', 'translate(' + AST_X + ',' + RETT_Y + ')');
     document.getElementById('katze').style.opacity = '';
     stage.classList.remove('fireA-out', 'fireB-out');
     fireHint(null);
