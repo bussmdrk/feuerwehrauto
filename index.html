@@ -235,25 +235,17 @@
   /* Im Korb: die Katze sitzt still */
   #stage.katze-korb #katze{transition:transform .9s cubic-bezier(.4,.05,.25,1)}
   /* Rausgesprungen: aus dem Korb auf die Strasse fallen, dann weglaufen.
-     Die Animation liegt bewusst auf dem INNEREN .katzehide: die aeussere
-     Gruppe traegt die Position als SVG-Attribut, eine CSS-Animation auf
-     transform wuerde die Position ueberschreiben. */
-  /* Korb-Katze steht bei y=-516, die Fusslinie der Zeichnung liegt 4
-     Einheiten darunter, die Strasse bei y=520 -> Versatz 1032. */
-  @keyframes rausspringen{0%{transform:translate(0,0)}
-                          72%{transform:translate(-30px,1032px)}   /* Fuesse auf der Strasse */
-                          86%{transform:translate(-36px,986px)}    /* kleiner Hupfer */
-                          100%{transform:translate(-52px,1032px)}}
-  @keyframes weglaufen{from{transform:translate(-52px,1032px)}
-                       to{transform:translate(1000px,1032px)}}
+     Die Bewegung liegt auf dem INNEREN .katzehide: die aeussere Gruppe
+     traegt die Position als SVG-Attribut, eine Animation auf transform
+     wuerde sie ueberschreiben. Gerechnet wird sie im Skript
+     (katzeSpringtRaus) - die Fallhoehe haengt davon ab, wie hoch der
+     Korb gerade steht, und der steht im Querformat ganz anders. */
 
-  /* Zweite Katze (ueber dem Wagen): sitzt im Korb und springt von dort weg */
+  /* Zweite Katze: sitzt IM Korb (Kind von .basket) und faehrt mit ihm */
   #katze2{opacity:0;transition:opacity .2s}
   #stage.katze-korb #katze2,
   #stage.katze-springt #katze2,
   #stage.katze-laeuft #katze2{opacity:1}
-  #stage.katze-springt #katze2 .katzehide{animation:rausspringen .9s ease-in forwards}
-  #stage.katze-laeuft #katze2 .katzehide{animation:weglaufen 1.5s ease-in forwards}
   #stage.katze-weg #katze2{opacity:0;transition:opacity .3s}
 
   /* Die Katze in der Baumkrone ist ab dem Einsteigen nicht mehr zu sehen:
@@ -1091,7 +1083,33 @@
                      erst rechts neben der Katze. -->
                 <rect data-toggle="water" data-hint x="78" y="-130" width="360" height="200" fill="#000" fill-opacity="0"/>
               </g>
-            </g>
+            
+<g id="katze2" transform="translate(62.5,-5)">
+        <g class="katzesitz">
+          <g class="katzehide">
+            <ellipse class="katzschatten" cx="0" cy="-4" rx="30" ry="8" fill="#000" opacity=".18"/>
+            <path d="M26 -30 q40 10 32 -42" fill="none" stroke="#e0873c" stroke-width="16" stroke-linecap="round"/>
+            <ellipse cx="0" cy="-34" rx="32" ry="38" fill="#f0a860"/>
+            <ellipse cx="12" cy="-34" rx="16" ry="34" fill="#f7c08a" opacity=".55"/>
+            <circle cx="-14" cy="-4" r="11" fill="#f7c08a"/>
+            <circle cx="14" cy="-4" r="11" fill="#f7c08a"/>
+            <polygon points="-26,-84 -16,-122 -2,-86" fill="#f0a860"/>
+            <polygon points="26,-84 16,-122 2,-86" fill="#f0a860"/>
+            <polygon points="-19,-90 -14,-108 -8,-90" fill="#e8949a"/>
+            <polygon points="19,-90 14,-108 8,-90" fill="#e8949a"/>
+            <circle cx="0" cy="-72" r="27" fill="#f7c08a"/>
+            <circle cx="-10" cy="-75" r="5.5" fill="#2b3238"/>
+            <circle cx="10" cy="-75" r="5.5" fill="#2b3238"/>
+            <circle cx="-11.5" cy="-77" r="1.8" fill="#fff"/>
+            <circle cx="8.5" cy="-77" r="1.8" fill="#fff"/>
+            <polygon points="0,-63 -5,-58 5,-58" fill="#e8949a"/>
+            <path d="M-4 -56 q4 5 8 0" fill="none" stroke="#c98d6b" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M-8 -60 l-22 -6 M-8 -56 l-22 4" stroke="#fff" stroke-width="2" opacity=".85" stroke-linecap="round"/>
+            <path d="M8 -60 l22 -6 M8 -56 l22 4" stroke="#fff" stroke-width="2" opacity=".85" stroke-linecap="round"/>
+          </g>
+        </g>
+  </g>
+              </g>
           </g>
         </g>
       </g>
@@ -1204,40 +1222,15 @@
     <!-- kleine Flaeche genau an der Duese: hier sitzt der Hinweisring -->
     <rect data-toggle="hosewater" data-hint x="-112" y="372" width="94" height="76" fill="#000" fill-opacity="0"/>
   </g>
-  <!-- Zweite Katze: dieselbe Zeichnung, aber ueber dem Wagen.
-       Der Korb verdeckt die Katze in der Landschaft, deshalb liegt diese
-       Kopie davor. Sie erscheint nur, wenn die Katze im Korb sitzt. -->
-  <g id="katze2" transform="translate(0,0)">
-        <g class="katzesitz">
-          <g class="katzehide">
-            <ellipse class="katzschatten" cx="0" cy="-4" rx="30" ry="8" fill="#000" opacity=".18"/>
-            <path d="M26 -30 q40 10 32 -42" fill="none" stroke="#e0873c" stroke-width="16" stroke-linecap="round"/>
-            <ellipse cx="0" cy="-34" rx="32" ry="38" fill="#f0a860"/>
-            <ellipse cx="12" cy="-34" rx="16" ry="34" fill="#f7c08a" opacity=".55"/>
-            <circle cx="-14" cy="-4" r="11" fill="#f7c08a"/>
-            <circle cx="14" cy="-4" r="11" fill="#f7c08a"/>
-            <polygon points="-26,-84 -16,-122 -2,-86" fill="#f0a860"/>
-            <polygon points="26,-84 16,-122 2,-86" fill="#f0a860"/>
-            <polygon points="-19,-90 -14,-108 -8,-90" fill="#e8949a"/>
-            <polygon points="19,-90 14,-108 8,-90" fill="#e8949a"/>
-            <circle cx="0" cy="-72" r="27" fill="#f7c08a"/>
-            <circle cx="-10" cy="-75" r="5.5" fill="#2b3238"/>
-            <circle cx="10" cy="-75" r="5.5" fill="#2b3238"/>
-            <circle cx="-11.5" cy="-77" r="1.8" fill="#fff"/>
-            <circle cx="8.5" cy="-77" r="1.8" fill="#fff"/>
-            <polygon points="0,-63 -5,-58 5,-58" fill="#e8949a"/>
-            <path d="M-4 -56 q4 5 8 0" fill="none" stroke="#c98d6b" stroke-width="2.4" stroke-linecap="round"/>
-            <path d="M-8 -60 l-22 -6 M-8 -56 l-22 4" stroke="#fff" stroke-width="2" opacity=".85" stroke-linecap="round"/>
-            <path d="M8 -60 l22 -6 M8 -56 l22 4" stroke="#fff" stroke-width="2" opacity=".85" stroke-linecap="round"/>
-          </g>
-        </g>
-  </g>
+  
 
   <!-- Tippbereich fuer die Katze: liegt ueber dem Wagen, weil der Korb
        (mit seiner Wasserzone) die Katze sonst verdeckt. Nur waehrend der
        Rettung tippbar. Die Lage setzt das Skript (katzeVerschieben). -->
   <g id="katzehit">
-    <rect data-toggle="katze" data-hint x="-66" y="-165" width="110" height="186" fill="#000" fill-opacity="0"/>
+    <!-- mittig um den Ursprung: das Skript setzt den Mittelpunkt der Flaeche
+         auf die gemessene Katze - so sitzt sie in jeder Ansicht richtig -->
+    <rect data-toggle="katze" data-hint x="-55" y="-93" width="110" height="186" fill="#000" fill-opacity="0"/>
   </g>
   <g id="hints"></g>
   <g id="warn"></g>
@@ -1760,11 +1753,14 @@
     var w = document.getElementById('warn');
     while (w.firstChild) w.removeChild(w.firstChild);
     if (rettDone || rettung.phase !== 'warte'){ w.style.opacity = '0'; return; }
-    var el = document.querySelector('#katze [data-toggle="katze"]');
+    /* Der Ring sitzt auf der Katze, die gerade zu sehen ist: im Baum auf
+       #katze, im Korb auf #katze2. */
+    var el = rettung.katzeImKorb ? document.getElementById('katze2')
+                                 : document.getElementById('katze');
     if (!el) return;
     var r = el.getBoundingClientRect();
     if (r.width < 4) return;
-    var q = toSvg(r.x + r.width / 2, r.y + r.height / 2);
+    var q = toSvg(r.x + r.width / 2, r.y + r.height * 0.45);
     var c = document.createElementNS(SVGNS, 'circle');
     c.setAttribute('class', 'firehint');
     c.setAttribute('cx', q.x); c.setAttribute('cy', q.y); c.setAttribute('r', 70);
@@ -1786,6 +1782,7 @@
     stage.classList.remove('katze-korb', 'katze-springt', 'katze-laeuft', 'katze-weg', 'katze-versteckt');
     document.getElementById('katze').setAttribute('transform', 'translate(' + AST_X + ',' + RETT_Y + ')');
     document.getElementById('katze').style.opacity = '';
+    katzeZuruecksetzen();
     stage.classList.remove('fireA-out', 'fireB-out');
     fireHint(null);
   }
@@ -1797,6 +1794,7 @@
     if (!state.ladder){ beepNope(); warn(['ladder']); katzeHinweis(); return; }
     rettung.katzeImKorb = true;
     rettung.phase = 'imkorb';
+    katzeZuruecksetzen();
     stage.classList.remove('katze-wartet');
     stage.classList.add('katze-korb');
     katzeVerschieben();
@@ -1806,57 +1804,96 @@
     katzeHinweis();
   }
 
-  /* Katze an die richtige Stelle setzen (Baum oder Korb) */
-  /* Setzt die Katze: im Baum (Landschaftskoordinaten) oder auf den Korb.
-     Zwei Zeichnungen teilen sich diese Position:
-       #katze  liegt in der Landschaft (hinter dem Wagen)
-       #katze2 liegt vor dem Wagen (nur im Korb sichtbar, sonst verdeckt)
-     #katzehit ist die Tippflaeche in Nutzerkoordinaten. */
+  /* ---------- Die Katze: im Baum und im Korb ----------
+     Zwei Zeichnungen:
+       #katze  sitzt im Baum, in Landschaftskoordinaten (faehrt mit dem Baum)
+       #katze2 sitzt IM Korb und ist Kind von .basket - dadurch faehrt sie
+               beim Ein- und Ausfahren von selbst mit
+     #katzehit ist die gemeinsame Tippflaeche in Nutzerkoordinaten. */
   function katzeVerschieben(){
     var el  = document.getElementById('katze');
     var k2  = document.getElementById('katze2');
     var hit = document.getElementById('katzehit');
-    var lx, ly, ux, uy;
 
-    // Die Katze sitzt in der Landschaft immer auf AST_X. Der Korb steht bei
-    // ausgefahrener Leiter in Nutzerkoordinaten fest (Boden bei x 482..626,
-    // rund y -524) - unabhaengig von der Fenstergroesse. Deshalb sind das
-    // feste Werte und keine Messung: zum Haltezeitpunkt ist die Leiter noch
-    // eingefahren, eine Messung waere dort falsch.
-    lx = AST_X; ly = RETT_Y;                 // Ast in der Baumkrone
-    ux = lx + landRead();                    // gleiche Stelle als Nutzerkoordinate
-    uy = ly;
-    if (rettung.katzeImKorb){
-      // Im Korb sitzt die Katze rechts neben dem Mann und links von der
-      // Wasserduese - so liegen alle drei Tippflaechen getrennt.
-      uy = -516;
-      ux = ux + 26;
-    }
+    el.setAttribute('transform', 'translate(' + AST_X + ',' + RETT_Y + ')');
+    if (!hit) return;
 
-    el.setAttribute('transform', 'translate(' + lx.toFixed(1) + ',' + ly.toFixed(1) + ')');
-    if (k2) k2.setAttribute('transform', 'translate(' + ux.toFixed(1) + ',' + uy.toFixed(1) + ')');
-    if (hit) hit.setAttribute('transform', 'translate(' + ux.toFixed(1) + ',' + uy.toFixed(1) + ')');
+    /* Die Tippflaeche wird an die Katze gesetzt, die gerade zu sehen ist -
+       am gezeichneten Tier GEMESSEN, nicht gerechnet. Der Korb steht naemlich
+       je nach Bildschirmausrichtung voellig anders: im Querformat ist die
+       Leiter flacher, der Korb liegt rund 300 Einheiten weiter rechts und
+       230 tiefer als im Hochformat. Feste Zahlen sassen nur im Hochformat;
+       im Querformat sass die Katze dadurch in der Baumkrone. */
+    var ziel = (rettung.katzeImKorb && k2) ? k2 : el;
+    var r = ziel.getBoundingClientRect();
+    var ctm = stage.getScreenCTM();
+    if ((!r.width && !r.height) || !ctm) return;
+    var p = stage.createSVGPoint();
+    p.x = r.x + r.width / 2;
+    p.y = r.y + r.height * 0.55;
+    var q = p.matrixTransform(ctm.inverse());
+    hit.setAttribute('transform', 'translate(' + q.x.toFixed(1) + ',' + q.y.toFixed(1) + ')');
   }
 
-  /* Leiter eingefahren und Katze im Korb: sie springt auf die Strasse und laeuft weg */
+  /* Bringt die Korbkatze in ihre Ausgangslage. Ohne das traegt sie den
+     Inline-Transform des letzten Sprungs in die naechste Runde mit. */
+  function katzeZuruecksetzen(){
+    var h = document.querySelector('#katze2 .katzehide');
+    if (!h) return;
+    h.style.transition = 'none';
+    h.style.transform = 'none';
+    requestAnimationFrame(function(){ h.style.transition = ''; });
+  }
+
+  /* Leiter eingefahren und Katze im Korb: sie springt auf die Strasse und
+     laeuft weg. Die Sprunghoehe wird GEMESSEN - von den Fuessen der
+     Korbkatze bis zum Strassenbelag. Frueher stand hier ein fester Wert
+     (1032): der stimmte nur, solange die Katze nahe am Leiterkopf sass,
+     im Querformat fiel sie dadurch scheinbar vom Baum. */
   function katzeSpringtRaus(){
     if (!rettung.katzeImKorb || rettDone) return;
-    /* katze2 bleibt, wo katzeVerschieben sie hingesetzt hat: im Korb.
-       Der Sprung ist reine CSS-Animation auf dem inneren .katzehide. */
     stage.classList.remove('katze-korb');
     stage.classList.add('katze-springt');
     rettung.phase = 'unten';
+
+    var k2   = document.getElementById('katze2');
+    var hide = k2 && k2.querySelector('.katzehide');
+    var dx = -52, fall = 1032;                   // Notnagel: Hochformat
+    if (k2 && hide){
+      var r0 = hide.getBoundingClientRect();
+      if (r0.width || r0.height){
+        var p0 = stage.createSVGPoint();
+        p0.x = r0.x + r0.width / 2; p0.y = r0.y + r0.height;   // Fusslinie
+        var fuss = p0.matrixTransform(stage.getScreenCTM().inverse());
+        fall = Math.round(GROUND - fuss.y);
+      }
+    }
+    function setz(tr, sec, ease){
+      if (!hide) return;
+      hide.style.transition = 'transform ' + sec + 's ' + ease;
+      hide.style.transform = tr;
+    }
+
+    setz('translate(' + dx + 'px,' + fall + 'px)', 0.8, 'cubic-bezier(.45,0,.85,.5)');
+    rettung.timers.push(setTimeout(function(){
+      setz('translate(' + (dx - 6) + 'px,' + (fall - 40) + 'px)', 0.18, 'ease-out');
+      rettung.timers.push(setTimeout(function(){
+        setz('translate(' + (dx - 10) + 'px,' + fall + 'px)', 0.16, 'ease-in');
+      }, 195));
+    }, 830));
+
     rettung.timers.push(setTimeout(function(){
       stage.classList.add('katze-laeuft');
       rettung.phase = 'weg';
+      setz('translate(' + (dx + 1052) + 'px,' + fall + 'px)', 1.7, 'cubic-bezier(.3,.1,.75,.4)');
       if (AC){ beep(1300, 0.08, 0.05); setTimeout(function(){ beep(900, 0.1, 0.045); }, 120); }
       rettung.timers.push(setTimeout(function(){
         rettDone = true;
         stage.classList.remove('katze-springt', 'katze-laeuft');
-        stage.classList.add('katze-weg');   // katze2 verblasst, Baumkatze bleibt aus
+        stage.classList.add('katze-weg');
         rettung.phase = 'weg';
-      }, 2600));
-    }, 700));
+      }, 2200));
+    }, 1150));
   }
 
   /* Ist das Feuer jetzt geloescht? */
