@@ -1381,7 +1381,13 @@
     if (!rettZoom) return;
     var inv = stage.getScreenCTM().inverse();
     var punkte = [];
-    ['#korbboden', '#katze2', '.basketfig', '.waterzone rect'].forEach(function(sel){
+    /* Die Katze, die gerade zu sehen ist, gehoert mit ins Bild. Im Querformat
+       steht die Leiter flacher, der Korb liegt dadurch rund 300 Einheiten
+       weiter rechts als die Katze im Baum - ein Rahmen nur um den Korb
+       schob die Katze aus dem Bild, sie war dann weder zu sehen noch
+       anzutippen. */
+    var sichtbar = rettung.katzeImKorb ? '#katze2' : '#katze';
+    ['#korbboden', sichtbar, '.basketfig', '.waterzone rect'].forEach(function(sel){
       var el = document.querySelector(sel);
       if (!el) return;
       var b = el.getBoundingClientRect();
