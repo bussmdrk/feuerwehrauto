@@ -1430,7 +1430,52 @@
   var loops = { water: null, drive: null, hose: null, hosewater: null };
   var siren = { on:false, osc:null, g:null, timer:null, hi:false };
 
+  /* iOS/Safari: Web-Audio laeuft ohne Zutun auf dem Klingelton-Kanal ('ambient').
+     Dann schaltet der Seitenschalter am iPad/iPhone JEDEN Ton der App stumm.
+     Mit dem Audio-Session-Typ 'playback' (ab iOS 17) laeuft der Ton auf dem
+     Medienkanal und ist vom Seitenschalter unabhaengig - wie bei YouTube.
+     Aeltere iOS-Versionen kennen die Schnittstelle nicht; dort greift der
+     stumme <audio>-Loop unten als Ersatz. */
+  function audioSessionPlayback(){
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(e){}
+  }
+
+  /* Ersatz fuer iOS < 17: ein dauerhaft stumm laufendes <audio>-Element
+     oeffnet den Medienkanal. Danach gibt iOS auch den Web-Audio-Ton dort aus
+     (bekannter Umweg um den Klingelton-Kanal).
+     Das Stille-WAV wird zur Laufzeit erzeugt (1 s, 8 kHz, mono, 16 Bit) -
+     so bleibt die Datei klein und kein Datenblock muss mitgeschleppt werden. */
+  var stummerKanal = null;
+  function stilleWavUrl(){
+    var sr = 8000, n = sr, bytes = 44 + n * 2;
+    var buf = new ArrayBuffer(bytes), v = new DataView(buf);
+    function str(o, s){ for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    str(0, 'RIFF'); v.setUint32(4, bytes - 8, true); str(8, 'WAVE');
+    str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, 'data'); v.setUint32(40, n * 2, true);
+    var b = new Uint8Array(buf), s = '';
+    for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+    return 'data:audio/wav;base64,' + btoa(s);
+  }
+  function oeffneMedienkanal(){
+    try {
+      if (!stummerKanal){
+        stummerKanal = document.createElement('audio');
+        stummerKanal.setAttribute('loop', 'loop');
+        stummerKanal.setAttribute('playsinline', '');
+        stummerKanal.preload = 'auto';
+        stummerKanal.volume = 0.001;
+        document.body.appendChild(stummerKanal);
+      }
+      if (!stummerKanal.src) stummerKanal.src = stilleWavUrl();
+      var p = stummerKanal.play();
+      if (p && p.catch) p.catch(function(){});
+    } catch(e){}
+  }
+
   function unlockAudio(){
+    audioSessionPlayback();
     if (!AC){
       var C = window.AudioContext || window.webkitAudioContext;
       if (!C) return;
@@ -1439,8 +1484,32 @@
       master.gain.value = muted ? 0 : 0.6;
       master.connect(AC.destination);
     }
-    if (AC.state === 'suspended' && AC.resume) AC.resume();
+    oeffneMedienkanal();
+    // 'suspended' (noch kein Gestus) und 'interrupted' (Tab war im Hintergrund,
+    // Anruf, Bildschirm aus) muessen beide wieder anlaufen.
+    if (AC.state !== 'running' && AC.resume) AC.resume();
+    primeAudio();
   }
+
+  /* Safari startet einen frischen AudioContext erst, wenn im Gestus wirklich
+     ein Ton laeuft. Ein leerer BufferSource im Antipp-Moment oeffnet ihn. */
+  var geprimt = false;
+  function primeAudio(){
+    if (!AC || geprimt) return;
+    try {
+      var s = AC.createBufferSource();
+      s.buffer = AC.createBuffer(1, 1, AC.sampleRate);
+      s.connect(master); s.start(0);
+      geprimt = true;
+    } catch(e){}
+  }
+
+  /* Zurueck auf der Seite (Home-Bildschirm-App wieder geoeffnet, Tab gewechselt,
+     iPad aus dem Standby): Safari stellt den Ton nicht von selbst wieder her. */
+  function tonNachholen(){ if (AC && AC.state !== 'running' && AC.resume) AC.resume(); }
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) tonNachholen(); });
+  window.addEventListener('focus', tonNachholen);
+  window.addEventListener('pageshow', function(){ audioSessionPlayback(); tonNachholen(); });
   function nbuf(sec){
     var n = Math.max(1, Math.floor(AC.sampleRate * sec));
     var b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
